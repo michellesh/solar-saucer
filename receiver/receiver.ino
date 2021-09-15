@@ -60,6 +60,7 @@ Adafruit_WS2801 dotsInner = Adafruit_WS2801(60, GPIO_0, GPIO_2); // dataPin, clo
 Adafruit_WS2801 dotsOuter = Adafruit_WS2801(120, GPIO_13, GPIO_15); // dataPin, clockPin
 
 uint8_t boardNumber;
+bool strobeOn = false;
 msg data;
 
 void setup() {
@@ -155,8 +156,6 @@ void setup() {
     FastLED.addLeds<LED_TYPE, DATA_PIN_6, COLOR_ORDER>(leds[15], LEDS_15)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-  } else {
-    Serial.println("MAC address not found");
   }
 
   FastLED.setBrightness(BRIGHTNESS);
@@ -189,42 +188,41 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   Serial.print("Bytes received: ");
   Serial.println(len);
 
-  Serial.print("Message received: ");
-  Serial.println(data.action);
+  if (data.action == ACTION_STROBE_ON) {
+    Serial.print("ACTION_STROBE_ON");
+    strobeOn = true;
+  } else if (data.action == ACTION_STROBE_OFF) {
+    Serial.print("ACTION_STROBE_OFF");
+    strobeOn = false;
+  }
 }
 
 void loop() {
 
-  if (boardNumber == 1) {  // BLUE
-    uint8_t blueStrands[] = {0, 1, 16, 17};
-    for(uint8_t i = 0; i < 4; i++) {
-      for(uint8_t pixel = 0; pixel < getNumPixels(blueStrands[i]); pixel++) {
-        leds[blueStrands[i]][pixel] = CRGB::White;
-      }
-    }
-    for(uint8_t i = 0; i < dotsInner.numPixels(); i++) {
-      dotsInner.setPixelColor(i, Color(0, 255, 0));
-      dotsInner.show();
-    }
-    for(uint8_t i = 0; i < dotsOuter.numPixels(); i++) {
-      dotsOuter.setPixelColor(i, Color(0, 0, 255));
-      dotsOuter.show();
-    }
-
-  } else if (boardNumber == 2) {  // GREEN
-    for(uint8_t strand = 2; strand < 10; strand++) {
-      for(uint8_t pixel = 0; pixel < getNumPixels(strand); pixel++) {
-        leds[strand][pixel] = CRGB::White;
-      }
-    }
-
-  } else {  // RED
-    for(uint8_t strand = 10; strand < 16; strand++) {
-      for(uint8_t pixel = 0; pixel < getNumPixels(strand); pixel++) {
-        leds[strand][pixel] = CRGB::White;
-      }
-    }
+  // Strobe
+  if (strobeOn) {
+    setAll(255, 255, 255);
+  } else {
+    setAll(0, 0, 0);
   }
 
   FastLED.show();
+  if (boardNumber == 1) {
+    dotsInner.show();
+    dotsOuter.show();
+  }
+}
+
+void setAll(byte r, byte g, byte b) {
+  for(uint8_t strand = 0; strand < 18; strand++) {
+    for(uint8_t pixel = 0; pixel < getNumPixels(strand); pixel++) {
+      leds[strand][pixel] = CRGB(r, g, b);
+    }
+  }
+  for(uint8_t i = 0; i < dotsInner.numPixels(); i++) {
+    dotsInner.setPixelColor(i, Color(r, g, b));
+  }
+  for(uint8_t i = 0; i < dotsOuter.numPixels(); i++) {
+    dotsOuter.setPixelColor(i, Color(r, g, b));
+  }
 }
