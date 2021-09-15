@@ -1,7 +1,6 @@
 #define FASTLED_ESP8266_NODEMCU_PIN_ORDER
 #include "solar_saucer_shared.h"
 #include "secrets.h"
-#include "Adafruit_WS2801.h"
 #include <ESP8266WiFi.h>
 #include <FastLED.h>
 #include <espnow.h>
@@ -32,6 +31,9 @@
 #define LEDS_16  35
 #define LEDS_17  49
 
+#define LEDS_INNER  60
+#define LEDS_OUTER  120
+
 CRGB leds_0[50];  // Strip 1
 CRGB leds_1[50];
 CRGB leds_2[50];
@@ -55,9 +57,8 @@ CRGB *leds[] = {
   leds_7, leds_8, leds_9, leds_10, leds_11, leds_12, leds_13,
   leds_14, leds_15, leds_16, leds_17
 };
-
-Adafruit_WS2801 dotsInner = Adafruit_WS2801(60, GPIO_0, GPIO_2); // dataPin, clockPin
-Adafruit_WS2801 dotsOuter = Adafruit_WS2801(120, GPIO_13, GPIO_15); // dataPin, clockPin
+CRGB dotsInner[LEDS_INNER];
+CRGB dotsOuter[LEDS_OUTER];
 
 uint8_t boardNumber;
 bool strobeOn = false;
@@ -104,12 +105,8 @@ void setup() {
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
 
-    dotsInner.begin();
-    dotsOuter.begin();
-
-    // Update LED contents, to start they are all 'off'
-    dotsInner.show();
-    dotsOuter.show();
+    FastLED.addLeds<WS2801, DATA_PIN_3, DATA_PIN_4, RGB>(dotsInner, LEDS_INNER);
+    FastLED.addLeds<WS2801, DATA_PIN_7, DATA_PIN_8, RGB>(dotsOuter, LEDS_OUTER);
 
   } else if (boardNumber == 2) {  // Green group
     FastLED.addLeds<LED_TYPE, DATA_PIN_1, COLOR_ORDER>(leds[2], 50)
@@ -162,16 +159,6 @@ void setup() {
 }
 
 // Create a 24 bit color value from R,G,B
-uint32_t Color(byte r, byte g, byte b) {
-  uint32_t c;
-  c = r;
-  c <<= 8;
-  c |= g;
-  c <<= 8;
-  c |= b;
-  return c;
-}
-
 uint8_t getNumPixels(uint8_t strandNumber) {
   return strandNumber == 12 ? LEDS_12
          : strandNumber == 13 ? LEDS_13
@@ -207,10 +194,6 @@ void loop() {
   }
 
   FastLED.show();
-  if (boardNumber == 1) {
-    dotsInner.show();
-    dotsOuter.show();
-  }
 }
 
 void setAll(byte r, byte g, byte b) {
@@ -219,10 +202,10 @@ void setAll(byte r, byte g, byte b) {
       leds[strand][pixel] = CRGB(r, g, b);
     }
   }
-  for(uint8_t i = 0; i < dotsInner.numPixels(); i++) {
-    dotsInner.setPixelColor(i, Color(r, g, b));
+  for(uint8_t pixel = 0; pixel < LEDS_INNER; pixel++) {
+    dotsInner[pixel] = CRGB(r, g, b);
   }
-  for(uint8_t i = 0; i < dotsOuter.numPixels(); i++) {
-    dotsOuter.setPixelColor(i, Color(r, g, b));
+  for(uint8_t pixel = 0; pixel < LEDS_OUTER; pixel++) {
+    dotsOuter[pixel] = CRGB(r, g, b);
   }
 }
