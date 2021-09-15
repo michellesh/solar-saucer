@@ -1,7 +1,10 @@
 #define FASTLED_ESP8266_NODEMCU_PIN_ORDER
+#include "solar_saucer_shared.h"
+#include "secrets.h"
 #include "Adafruit_WS2801.h"
-#include "SPI.h" // Comment out this line if using Trinket or Gemma
+#include <ESP8266WiFi.h>
 #include <FastLED.h>
+#include <espnow.h>
 
 #define BRIGHTNESS      255
 #define COLOR_ORDER     GRB
@@ -56,15 +59,35 @@ CRGB *leds[] = {
 Adafruit_WS2801 dotsInner = Adafruit_WS2801(60, GPIO_0, GPIO_2); // dataPin, clockPin
 Adafruit_WS2801 dotsOuter = Adafruit_WS2801(120, GPIO_13, GPIO_15); // dataPin, clockPin
 
-uint8_t boardNumber = 2;
+uint8_t boardNumber;
+msg data;
 
 void setup() {
   Serial.begin(115200);
   delay(500);
 
-  //uint8_t boardNumber = WiFi.macAddress() == macAddress1   ? 1
-  //                      : WiFi.macAddress() == macAddress2 ? 2
-  //                                                         : 3;
+  WiFi.mode(WIFI_STA);
+  WiFi.disconnect();
+
+  if (esp_now_init() != 0) {
+    Serial.println("Error initializing ESP-NOW");
+    return;
+  }
+
+  esp_now_set_self_role(ESP_NOW_ROLE_SLAVE);
+  esp_now_register_recv_cb(OnDataRecv);
+
+  boardNumber = WiFi.macAddress() == ss_macAddress1   ? 1
+                : WiFi.macAddress() == ss_macAddress2 ? 2
+                : WiFi.macAddress() == ss_macAddress3 ? 3
+                                                      : 0;
+  if (boardNumber == 0) {
+    Serial.print("MAC address not found: ");
+    Serial.println(WiFi.macAddress());
+  } else {
+    Serial.print("Board number: ");
+    Serial.println(boardNumber);
+  }
 
   if (boardNumber == 1) {  // Blue group
     FastLED.addLeds<LED_TYPE, DATA_PIN_1, COLOR_ORDER>(leds[0], 50)
@@ -158,6 +181,16 @@ uint8_t getNumPixels(uint8_t strandNumber) {
          : strandNumber == 16 ? LEDS_16
          : strandNumber == 17 ? LEDS_17
          : 50;
+}
+
+// Callback function that will be executed when data is received
+void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
+  memcpy(&data, incomingData, sizeof(data));
+  Serial.print("Bytes received: ");
+  Serial.println(len);
+
+  Serial.print("Message received: ");
+  Serial.println(data.action);
 }
 
 void loop() {
