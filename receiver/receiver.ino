@@ -60,8 +60,10 @@ CRGB *leds[] = {
 CRGB dotsInner[LEDS_INNER];
 CRGB dotsOuter[LEDS_OUTER];
 
-uint8_t boardNumber;
+byte boardNumber;
 bool strobeOn = false;
+byte brightness = BRIGHTNESS;
+byte activeViz = VIZ_DEFAULT;
 msg data;
 
 void setup() {
@@ -175,9 +177,20 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   Serial.print("Bytes received: ");
   Serial.println(len);
 
-  if (data.action == ACTION_STROBE_ON) {
+  if (data.action == ACTION_SET_BRIGHTNESS) {
+    Serial.print("ACTION_SET_BRIGHTNESS");
+    Serial.println(data.value);
+    brightness = (byte)data.value;
+
+  } else if (data.action == ACTION_SET_BACKGROUND) {
+    Serial.print("ACTION_SET_BACKGROUND");
+    Serial.println(data.value);
+    activeViz = data.value;
+
+  } else if (data.action == ACTION_STROBE_ON) {
     Serial.print("ACTION_STROBE_ON");
     strobeOn = true;
+
   } else if (data.action == ACTION_STROBE_OFF) {
     Serial.print("ACTION_STROBE_OFF");
     strobeOn = false;
@@ -186,17 +199,45 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
 
 void loop() {
 
+  // Background pattern
+  if (activeViz == VIZ_DEFAULT) {
+    setAllRGB(0, 0, 0);
+  } else if (activeViz == VIZ_EXPLODE) {
+    vizExplode();
+  } else if (activeViz == VIZ_SPIN) {
+    vizSpin();
+  } else if (activeViz == VIZ_TWINKLE) {
+    vizTwinkle();
+  }
+
   // Strobe
   if (strobeOn) {
-    setAll(255, 255, 255);
+    setAllRGB(255, 255, 255);
   } else {
-    setAll(0, 0, 0);
+    setAllRGB(0, 0, 0);
   }
+
+  // Brightness
+  setAllBrightness(brightness);
 
   FastLED.show();
 }
 
-void setAll(byte r, byte g, byte b) {
+void setAllBrightness(byte b) {
+  for(uint8_t strand = 0; strand < 18; strand++) {
+    for(uint8_t pixel = 0; pixel < getNumPixels(strand); pixel++) {
+      leds[strand][pixel].nscale8(b);
+    }
+  }
+  for(uint8_t pixel = 0; pixel < LEDS_INNER; pixel++) {
+    dotsInner[pixel].nscale8(b);
+  }
+  for(uint8_t pixel = 0; pixel < LEDS_OUTER; pixel++) {
+    dotsOuter[pixel].nscale8(b);
+  }
+}
+
+void setAllRGB(byte r, byte g, byte b) {
   for(uint8_t strand = 0; strand < 18; strand++) {
     for(uint8_t pixel = 0; pixel < getNumPixels(strand); pixel++) {
       leds[strand][pixel] = CRGB(r, g, b);
@@ -208,4 +249,18 @@ void setAll(byte r, byte g, byte b) {
   for(uint8_t pixel = 0; pixel < LEDS_OUTER; pixel++) {
     dotsOuter[pixel] = CRGB(r, g, b);
   }
+}
+
+void vizExplode() {
+  // use juggle code?
+}
+
+void vizSpin() {
+}
+
+void vizTwinkle() {
+  //EVERY_N_MILLISECONDS(10) {
+  //  nblendPaletteTowardPalette(gCurrentPalette, gTargetPalette, 12);
+  //}
+  //viz_twinkle(mapf(speed, 1, 10, 4, 9));
 }
