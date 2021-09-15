@@ -1,9 +1,11 @@
 #define FASTLED_ESP8266_NODEMCU_PIN_ORDER
 #include "solar_saucer_shared.h"
 #include "secrets.h"
+#include "utils.h"
 #include <ESP8266WiFi.h>
 #include <FastLED.h>
 #include <espnow.h>
+#include "colors.h"
 
 #define BRIGHTNESS      255
 #define COLOR_ORDER     GRB
@@ -62,8 +64,11 @@ CRGB dotsOuter[LEDS_OUTER];
 
 byte boardNumber;
 bool strobeOn = false;
-byte brightness = BRIGHTNESS;
-byte activeViz = VIZ_DEFAULT;
+uint8_t brightness = BRIGHTNESS;
+uint8_t activeViz = VIZ_DEFAULT;
+uint8_t speed = 1;
+CRGB colorLeft = CRGB::White;
+CRGB colorRight = CRGB::White;
 msg data;
 
 void setup() {
@@ -158,6 +163,8 @@ void setup() {
   }
 
   FastLED.setBrightness(BRIGHTNESS);
+
+  chooseNextColorPalette(gTargetPalette);
 }
 
 // Create a 24 bit color value from R,G,B
@@ -176,12 +183,36 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   memcpy(&data, incomingData, sizeof(data));
   Serial.print("Bytes received: ");
   Serial.println(len);
+  Serial.println(data.action);
 
+  // SLIDER ACTIONS
   if (data.action == ACTION_SET_BRIGHTNESS) {
     Serial.print("ACTION_SET_BRIGHTNESS");
     Serial.println(data.value);
-    brightness = (byte)data.value;
+    brightness = (uint8_t)data.value;
 
+  } else if (data.action == ACTION_SET_COLOR_LEFT) {
+    Serial.print("ACTION_SET_COLOR_LEFT ");
+    Serial.println(data.value);
+    colorLeft = CHSV(data.value, 255, 255);
+
+    int paletteIndex = map(data.value, 0, 255, 0, 8);
+    gCurrentPalette = *(ActivePaletteList[paletteIndex]);
+
+  } else if (data.action == ACTION_SET_COLOR_RIGHT) {
+    Serial.print("ACTION_SET_COLOR_RIGHT ");
+    Serial.println(data.value);
+    colorRight = CHSV(data.value, 255, 255);
+
+    int paletteIndex = map(data.value, 0, 255, 0, 8);
+    gCurrentPalette = *(ActivePaletteList[paletteIndex]);
+
+  } else if (data.action == ACTION_SPEED) {
+    Serial.print("ACTION_SPEED");
+    Serial.println(data.value);
+    speed = data.value;
+
+  // BUTTON ACTIONS
   } else if (data.action == ACTION_SET_BACKGROUND) {
     Serial.print("ACTION_SET_BACKGROUND");
     Serial.println(data.value);
@@ -194,6 +225,13 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   } else if (data.action == ACTION_STROBE_OFF) {
     Serial.print("ACTION_STROBE_OFF");
     strobeOn = false;
+
+  // AUTO ACTIONS
+  } else if (data.action == ACTION_SET_PALETTE) {
+    Serial.print("ACTION_SET_PALETTE ");
+    Serial.println(data.value);
+
+    gTargetPalette = *(ActivePaletteList[data.value]);
   }
 }
 
@@ -201,20 +239,21 @@ void loop() {
 
   // Background pattern
   if (activeViz == VIZ_DEFAULT) {
-    setAllRGB(0, 0, 0);
+    setAllRGB(CRGB(0, 0, 0));
   } else if (activeViz == VIZ_EXPLODE) {
     vizExplode();
   } else if (activeViz == VIZ_SPIN) {
     vizSpin();
   } else if (activeViz == VIZ_TWINKLE) {
-    vizTwinkle();
+    EVERY_N_MILLISECONDS(10) {
+      nblendPaletteTowardPalette(gCurrentPalette, gTargetPalette, 12);
+    }
+    vizTwinkle(mapf(speed, 1, 10, 4, 9));
   }
 
   // Strobe
   if (strobeOn) {
-    setAllRGB(255, 255, 255);
-  } else {
-    setAllRGB(0, 0, 0);
+    setAllRGB(colorLeft);
   }
 
   // Brightness
@@ -223,7 +262,7 @@ void loop() {
   FastLED.show();
 }
 
-void setAllBrightness(byte b) {
+void setAllBrightness(uint8_t b) {
   for(uint8_t strand = 0; strand < 18; strand++) {
     for(uint8_t pixel = 0; pixel < getNumPixels(strand); pixel++) {
       leds[strand][pixel].nscale8(b);
@@ -237,17 +276,17 @@ void setAllBrightness(byte b) {
   }
 }
 
-void setAllRGB(byte r, byte g, byte b) {
+void setAllRGB(CRGB color) {
   for(uint8_t strand = 0; strand < 18; strand++) {
     for(uint8_t pixel = 0; pixel < getNumPixels(strand); pixel++) {
-      leds[strand][pixel] = CRGB(r, g, b);
+      leds[strand][pixel] = color;
     }
   }
   for(uint8_t pixel = 0; pixel < LEDS_INNER; pixel++) {
-    dotsInner[pixel] = CRGB(r, g, b);
+    dotsInner[pixel] = color;
   }
   for(uint8_t pixel = 0; pixel < LEDS_OUTER; pixel++) {
-    dotsOuter[pixel] = CRGB(r, g, b);
+    dotsOuter[pixel] = color;
   }
 }
 
@@ -256,11 +295,4 @@ void vizExplode() {
 }
 
 void vizSpin() {
-}
-
-void vizTwinkle() {
-  //EVERY_N_MILLISECONDS(10) {
-  //  nblendPaletteTowardPalette(gCurrentPalette, gTargetPalette, 12);
-  //}
-  //viz_twinkle(mapf(speed, 1, 10, 4, 9));
 }
