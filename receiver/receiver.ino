@@ -242,7 +242,8 @@ void loop() {
   if (activeViz == VIZ_DEFAULT) {
     setAllColor(CRGB(0, 0, 0));
   } else if (activeViz == VIZ_EXPLODE) {
-    vizExplode();
+    float explodeSpeed = mapf(speed, 1, 10, 0.2, 2.0);
+    vizExplode(explodeSpeed);
   } else if (activeViz == VIZ_SPIN) {
     vizSpin();
   } else if (activeViz == VIZ_TWINKLE) {
@@ -315,10 +316,6 @@ void setAllGradient(CRGB colorLeft, CRGB colorRight) {
     percent = (float)outerX[pixel] / (float)xyMax;
     dotsOuter[pixel] = getColorAlongGradient(colorLeft, colorRight, percent);
   }
-}
-
-void vizExplode() {
-  // use juggle code?
 }
 
 void vizSpin() {

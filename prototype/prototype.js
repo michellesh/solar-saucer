@@ -175,9 +175,13 @@ const draw = () => {
     // Draw each LED strip as a line
     ledStrips.forEach(ledStrip => ledStrip.draw(ctx));
 
+    // Output coordinates for all corners
+    document.getElementById('output').innerHTML = d3.range(0, 18)
+      .map(i => i + ': ' + ledStrips[offsetStripNumber(i)].output)
+      .join('<br />');
+
     // Output coordinates for each LED on each strip
     document.getElementById('output').innerHTML = d3.range(0, 18)
-      //.map(i => i + ': ' + ledStrips[offsetStripNumber(i)].output)
       .flatMap(s => ([
         'x' + s + ': ' + d3.range(0, 50).map(
           i => Math.round(getLedXY(s, i).x)).join(', '),
