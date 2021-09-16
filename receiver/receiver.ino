@@ -1,4 +1,5 @@
 #define FASTLED_ESP8266_NODEMCU_PIN_ORDER
+#include "xy.h"
 #include "solar_saucer_shared.h"
 #include "secrets.h"
 #include "utils.h"
@@ -239,7 +240,7 @@ void loop() {
 
   // Background pattern
   if (activeViz == VIZ_DEFAULT) {
-    setAllRGB(CRGB(0, 0, 0));
+    setAllColor(CRGB(0, 0, 0));
   } else if (activeViz == VIZ_EXPLODE) {
     vizExplode();
   } else if (activeViz == VIZ_SPIN) {
@@ -253,7 +254,7 @@ void loop() {
 
   // Strobe
   if (strobeOn) {
-    setAllRGB(colorLeft);
+    setAllGradient(colorLeft, colorRight);
   }
 
   // Brightness
@@ -276,7 +277,7 @@ void setAllBrightness(uint8_t b) {
   }
 }
 
-void setAllRGB(CRGB color) {
+void setAllColor(CRGB color) {
   for(uint8_t strand = 0; strand < 18; strand++) {
     for(uint8_t pixel = 0; pixel < getNumPixels(strand); pixel++) {
       leds[strand][pixel] = color;
@@ -287,6 +288,32 @@ void setAllRGB(CRGB color) {
   }
   for(uint8_t pixel = 0; pixel < LEDS_OUTER; pixel++) {
     dotsOuter[pixel] = color;
+  }
+}
+
+CRGB getColorAlongGradient(CRGB color1, CRGB color2, float percent) {
+  return CRGB(
+    color1.r + percent * (color2.r - color1.r),
+    color1.g + percent * (color2.g - color1.g),
+    color1.b + percent * (color2.b - color1.b)
+  );
+}
+
+void setAllGradient(CRGB colorLeft, CRGB colorRight) {
+  float percent;
+  for(uint8_t strand = 0; strand < 18; strand++) {
+    for(uint8_t pixel = 0; pixel < getNumPixels(strand); pixel++) {
+      percent = (float)(ledX[strand][pixel] / (float)xyMax);
+      leds[strand][pixel] = getColorAlongGradient(colorLeft, colorRight, percent);
+    }
+  }
+  for(uint8_t pixel = 0; pixel < LEDS_INNER; pixel++) {
+    percent = (float)innerX[pixel] / (float)xyMax;
+    dotsInner[pixel] = getColorAlongGradient(colorLeft, colorRight, percent);
+  }
+  for(uint8_t pixel = 0; pixel < LEDS_OUTER; pixel++) {
+    percent = (float)outerX[pixel] / (float)xyMax;
+    dotsOuter[pixel] = getColorAlongGradient(colorLeft, colorRight, percent);
   }
 }
 

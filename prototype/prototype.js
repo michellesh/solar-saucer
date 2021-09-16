@@ -175,10 +175,31 @@ const draw = () => {
     // Draw each LED strip as a line
     ledStrips.forEach(ledStrip => ledStrip.draw(ctx));
 
-    // Output the inner and outer coordinates for each LED strip
+    // Output coordinates for each LED on each strip
     document.getElementById('output').innerHTML = d3.range(0, 18)
-      .map(i => i + ': ' + ledStrips[offsetStripNumber(i)].output)
-      .join('<br />');
+      //.map(i => i + ': ' + ledStrips[offsetStripNumber(i)].output)
+      .flatMap(s => ([
+        'x' + s + ': ' + d3.range(0, 50).map(
+          i => Math.round(getLedXY(s, i).x)).join(', '),
+        'y' + s + ': ' + d3.range(0, 50).map(
+          i => Math.round(getLedXY(s, i).y)).join(', ')
+      ])).join('<br />');
+
+    // Output coordinates for each LED on inner ring
+    document.getElementById('output').innerHTML = [
+      'innerX: ' + d3.range(0, NUM_DOTS_INNER).map(
+        i => Math.round(getInnerRingXY(i).x)).join(', '),
+      'innerY: ' + d3.range(0, NUM_DOTS_INNER).map(
+        i => Math.round(getInnerRingXY(i).y)).join(', ')
+    ].join('<br />');
+
+    // Output coordinates for each LED on outer ring
+    document.getElementById('output').innerHTML = [
+      'outerX: ' + d3.range(0, NUM_DOTS_OUTER).map(
+        i => Math.round(getOuterRingXY(i).x)).join(', '),
+      'outerY: ' + d3.range(0, NUM_DOTS_OUTER).map(
+        i => Math.round(getOuterRingXY(i).y)).join(', ')
+    ].join('<br />');
 
     // Test getLedXY, highlight a random LED in red
     Dot(getLedXY(17, 20), 'red').draw(ctx);
