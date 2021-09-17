@@ -230,32 +230,34 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   }
 }
 
+
 void loop() {
-
-  // Background pattern
-  if (activeViz == VIZ_DEFAULT) {
-    setAllColor(CRGB(0, 0, 0));
-  } else if (activeViz == VIZ_EXPLODE) {
-    float explodeSpeed = mapf(speed, 1, 10, 0.2, 2.0);
-    vizExplode(explodeSpeed);
-  } else if (activeViz == VIZ_SPIN) {
-    vizSpin(speed);
-  } else if (activeViz == VIZ_TWINKLE) {
-    EVERY_N_MILLISECONDS(10) {
-      nblendPaletteTowardPalette(gCurrentPalette, gTargetPalette, 12);
+  EVERY_N_MILLISECONDS(20) {
+    // Background pattern
+    if (activeViz == VIZ_DEFAULT) {
+      setAllColor(CRGB(0, 0, 0));
+    } else if (activeViz == VIZ_EXPLODE) {
+      float explodeSpeed = mapf(speed, 1, 10, 0.2, 2.0);
+      vizExplode(explodeSpeed);
+    } else if (activeViz == VIZ_SPIN) {
+      vizSpin(speed);
+    } else if (activeViz == VIZ_TWINKLE) {
+      EVERY_N_MILLISECONDS(10) {
+        nblendPaletteTowardPalette(gCurrentPalette, gTargetPalette, 12);
+      }
+      vizTwinkle(mapf(speed, 1, 10, 4, 9));
     }
-    vizTwinkle(mapf(speed, 1, 10, 4, 9));
+
+    // Strobe
+    if (strobeOn) {
+      setAllGradient();
+    }
+
+    // Brightness
+    setAllBrightness(brightness);
+
+    FastLED.show();
   }
-
-  // Strobe
-  if (strobeOn) {
-    setAllGradient();
-  }
-
-  // Brightness
-  setAllBrightness(brightness);
-
-  FastLED.show();
 }
 
 void setAllBrightness(uint8_t b) {
