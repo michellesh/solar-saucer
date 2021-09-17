@@ -245,7 +245,7 @@ void loop() {
     float explodeSpeed = mapf(speed, 1, 10, 0.2, 2.0);
     vizExplode(explodeSpeed);
   } else if (activeViz == VIZ_SPIN) {
-    vizSpin();
+    vizSpin(speed);
   } else if (activeViz == VIZ_TWINKLE) {
     EVERY_N_MILLISECONDS(10) {
       nblendPaletteTowardPalette(gCurrentPalette, gTargetPalette, 12);
@@ -327,7 +327,4 @@ void setAllColor(CRGB color) {
   for(int pixel = 0; pixel < LEDS_OUTER; pixel++) {
     dotsOuter[pixel] = color;
   }
-}
-
-void vizSpin() {
 }
