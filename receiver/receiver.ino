@@ -68,6 +68,9 @@ bool strobeOn = false;
 uint8_t brightness = BRIGHTNESS;
 uint8_t activeViz = VIZ_DEFAULT;
 uint8_t speed = 1;
+int spinAngle = 240;
+float explodePixel = 0;
+bool exploded = false;
 CRGB colorLeft = CRGB::White;
 CRGB colorRight = CRGB::White;
 msg data;
@@ -166,6 +169,7 @@ void setup() {
   FastLED.setBrightness(BRIGHTNESS);
 
   chooseNextColorPalette(gTargetPalette);
+  initPixelAngles();
 }
 
 // Create a 24 bit color value from R,G,B
@@ -218,6 +222,12 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
     Serial.print("ACTION_SET_BACKGROUND");
     Serial.println(data.value);
     activeViz = data.value;
+    if (activeViz == VIZ_SPIN) {
+      spinAngle = 0;
+    } else if (activeViz == VIZ_EXPLODE) {
+      explodePixel = 0;
+      exploded = false;
+    }
 
   } else if (data.action == ACTION_STROBE_ON) {
     Serial.print("ACTION_STROBE_ON");
