@@ -1,21 +1,21 @@
-int pixelAngles_0[50];
-int pixelAngles_1[50];
-int pixelAngles_2[50];
-int pixelAngles_3[50];
-int pixelAngles_4[50];
-int pixelAngles_5[50];
-int pixelAngles_6[50];
-int pixelAngles_7[50];
-int pixelAngles_8[50];
-int pixelAngles_9[50];
-int pixelAngles_10[50];
-int pixelAngles_11[50];
-int pixelAngles_12[LEDS_12];
-int pixelAngles_13[LEDS_13];
-int pixelAngles_14[LEDS_14];
-int pixelAngles_15[LEDS_15];
-int pixelAngles_16[LEDS_16];
-int pixelAngles_17[LEDS_17];
+int pixelAngles_0[STRAND_LENGTH];
+int pixelAngles_1[STRAND_LENGTH];
+int pixelAngles_2[STRAND_LENGTH];
+int pixelAngles_3[STRAND_LENGTH];
+int pixelAngles_4[STRAND_LENGTH];
+int pixelAngles_5[STRAND_LENGTH];
+int pixelAngles_6[STRAND_LENGTH];
+int pixelAngles_7[STRAND_LENGTH];
+int pixelAngles_8[STRAND_LENGTH];
+int pixelAngles_9[STRAND_LENGTH];
+int pixelAngles_10[STRAND_LENGTH];
+int pixelAngles_11[STRAND_LENGTH];
+int pixelAngles_12[STRAND_LENGTH];
+int pixelAngles_13[STRAND_LENGTH];
+int pixelAngles_14[STRAND_LENGTH];
+int pixelAngles_15[STRAND_LENGTH];
+int pixelAngles_16[STRAND_LENGTH];
+int pixelAngles_17[STRAND_LENGTH];
 int *pixelAngles[] = {
   pixelAngles_0, pixelAngles_1, pixelAngles_2, pixelAngles_3, pixelAngles_4,
   pixelAngles_5, pixelAngles_6, pixelAngles_7, pixelAngles_8, pixelAngles_9,
@@ -26,8 +26,8 @@ int pixelAnglesInner[LEDS_INNER];
 int pixelAnglesOuter[LEDS_OUTER];
 
 void initPixelAngles() {
-  for (int strand = 0; strand < 18; strand++) {
-    for(int pixel = 0; pixel < getNumPixels(strand); pixel++) {
+  for (int strand = 0; strand < NUM_STRANDS; strand++) {
+    for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
       int x = ledX[strand][pixel];
       int y = ledY[strand][pixel];
       pixelAngles[strand][pixel] = getPixelAngle(x, y);
@@ -54,12 +54,12 @@ int getPixelAngle(int x, int y) {
 void vizSpin(float speed) {
   fadeToBlackBy(dotsInner, LEDS_INNER, 20);
   fadeToBlackBy(dotsOuter, LEDS_OUTER, 20);
-  for (int strand = 0; strand < 18; strand++) {
-    fadeToBlackBy(leds[strand], getNumPixels(strand), 20);
+  for (int strand = 0; strand < NUM_STRANDS; strand++) {
+    fadeToBlackBy(leds[strand], STRAND_LENGTH, 20);
   }
 
-  for (int strand = 0; strand < 18; strand++) {
-    for(int pixel = 0; pixel < getNumPixels(strand); pixel++) {
+  for (int strand = 0; strand < NUM_STRANDS; strand++) {
+    for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
       if (abs(spinAngle - pixelAngles[strand][pixel]) < 5) {
         leds[strand][pixel] = getStrandGradientColor(strand, pixel);
       }

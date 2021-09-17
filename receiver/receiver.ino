@@ -11,6 +11,8 @@
 #define BRIGHTNESS      255
 #define COLOR_ORDER     GRB
 #define LED_TYPE        WS2813
+#define NUM_STRANDS     18
+#define STRAND_LENGTH   50
 
 #define DATA_PIN_0  0
 #define DATA_PIN_1  1
@@ -27,34 +29,27 @@
 #define GPIO_13  13  // D7 data (yellow wire on dots)
 #define GPIO_15  15  // D8 clock (green wire on dots)
 
-#define LEDS_12  50  // Strip 13
-#define LEDS_13  35
-#define LEDS_14  35
-#define LEDS_15  35
-#define LEDS_16  35
-#define LEDS_17  49
-
 #define LEDS_INNER  60
 #define LEDS_OUTER  120
 
-CRGB leds_0[50];  // Strip 1
-CRGB leds_1[50];
-CRGB leds_2[50];
-CRGB leds_3[50];
-CRGB leds_4[50];
-CRGB leds_5[50];
-CRGB leds_6[50];
-CRGB leds_7[50];
-CRGB leds_8[50];
-CRGB leds_9[50];
-CRGB leds_10[50];
-CRGB leds_11[50];
-CRGB leds_12[LEDS_12];
-CRGB leds_13[LEDS_13];
-CRGB leds_14[LEDS_14];
-CRGB leds_15[LEDS_15];
-CRGB leds_16[LEDS_16];
-CRGB leds_17[LEDS_17];
+CRGB leds_0[STRAND_LENGTH];  // Strip 1
+CRGB leds_1[STRAND_LENGTH];
+CRGB leds_2[STRAND_LENGTH];
+CRGB leds_3[STRAND_LENGTH];
+CRGB leds_4[STRAND_LENGTH];
+CRGB leds_5[STRAND_LENGTH];
+CRGB leds_6[STRAND_LENGTH];
+CRGB leds_7[STRAND_LENGTH];
+CRGB leds_8[STRAND_LENGTH];
+CRGB leds_9[STRAND_LENGTH];
+CRGB leds_10[STRAND_LENGTH];
+CRGB leds_11[STRAND_LENGTH];
+CRGB leds_12[STRAND_LENGTH];
+CRGB leds_13[STRAND_LENGTH];
+CRGB leds_14[STRAND_LENGTH];
+CRGB leds_15[STRAND_LENGTH];
+CRGB leds_16[STRAND_LENGTH];
+CRGB leds_17[STRAND_LENGTH];
 CRGB *leds[] = {
   leds_0, leds_1, leds_2, leds_3, leds_4, leds_5, leds_6,
   leds_7, leds_8, leds_9, leds_10, leds_11, leds_12, leds_13,
@@ -103,16 +98,16 @@ void setup() {
   }
 
   if (boardNumber == 1) {  // Blue group
-    FastLED.addLeds<LED_TYPE, DATA_PIN_1, COLOR_ORDER>(leds[0], 50)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_1, COLOR_ORDER>(leds[0], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_2, COLOR_ORDER>(leds[1], 50)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_2, COLOR_ORDER>(leds[1], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_5, COLOR_ORDER>(leds[16], LEDS_16)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_5, COLOR_ORDER>(leds[16], NUM_STRANDS)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_6, COLOR_ORDER>(leds[17], LEDS_17)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_6, COLOR_ORDER>(leds[17], NUM_STRANDS)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
 
@@ -120,48 +115,48 @@ void setup() {
     FastLED.addLeds<WS2801, DATA_PIN_7, DATA_PIN_8, RGB>(dotsOuter, LEDS_OUTER);
 
   } else if (boardNumber == 2) {  // Green group
-    FastLED.addLeds<LED_TYPE, DATA_PIN_1, COLOR_ORDER>(leds[2], 50)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_1, COLOR_ORDER>(leds[2], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_2, COLOR_ORDER>(leds[3], 50)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_2, COLOR_ORDER>(leds[3], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_3, COLOR_ORDER>(leds[4], 50)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_3, COLOR_ORDER>(leds[4], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_4, COLOR_ORDER>(leds[5], 50)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_4, COLOR_ORDER>(leds[5], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_5, COLOR_ORDER>(leds[6], 50)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_5, COLOR_ORDER>(leds[6], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_6, COLOR_ORDER>(leds[7], 50)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_6, COLOR_ORDER>(leds[7], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_7, COLOR_ORDER>(leds[8], 50)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_7, COLOR_ORDER>(leds[8], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_8, COLOR_ORDER>(leds[9], 50)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_8, COLOR_ORDER>(leds[9], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
 
   } else if (boardNumber == 3) {  // Red group
-    FastLED.addLeds<LED_TYPE, DATA_PIN_1, COLOR_ORDER>(leds[10], 50)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_1, COLOR_ORDER>(leds[10], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_2, COLOR_ORDER>(leds[11], 50)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_2, COLOR_ORDER>(leds[11], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_3, COLOR_ORDER>(leds[12], LEDS_12)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_3, COLOR_ORDER>(leds[12], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_4, COLOR_ORDER>(leds[13], LEDS_13)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_4, COLOR_ORDER>(leds[13], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_5, COLOR_ORDER>(leds[14], LEDS_14)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_5, COLOR_ORDER>(leds[14], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_6, COLOR_ORDER>(leds[15], LEDS_15)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_6, COLOR_ORDER>(leds[15], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
   }
@@ -170,17 +165,6 @@ void setup() {
 
   chooseNextColorPalette(gTargetPalette);
   initPixelAngles();
-}
-
-// Create a 24 bit color value from R,G,B
-int getNumPixels(int strandNumber) {
-  return strandNumber == 12 ? LEDS_12
-         : strandNumber == 13 ? LEDS_13
-         : strandNumber == 14 ? LEDS_14
-         : strandNumber == 15 ? LEDS_15
-         : strandNumber == 16 ? LEDS_16
-         : strandNumber == 17 ? LEDS_17
-         : 50;
 }
 
 // Callback function that will be executed when data is received
@@ -275,8 +259,8 @@ void loop() {
 }
 
 void setAllBrightness(uint8_t b) {
-  for(int strand = 0; strand < 18; strand++) {
-    for(int pixel = 0; pixel < getNumPixels(strand); pixel++) {
+  for(int strand = 0; strand < NUM_STRANDS; strand++) {
+    for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
       leds[strand][pixel].nscale8(b);
     }
   }
@@ -312,8 +296,8 @@ CRGB getOuterGradientColor(int pixel) {
 }
 
 void setAllGradient() {
-  for(int strand = 0; strand < 18; strand++) {
-    for(int pixel = 0; pixel < getNumPixels(strand); pixel++) {
+  for(int strand = 0; strand < NUM_STRANDS; strand++) {
+    for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
       leds[strand][pixel] = getStrandGradientColor(strand, pixel);
     }
   }
@@ -326,8 +310,8 @@ void setAllGradient() {
 }
 
 void setAllColor(CRGB color) {
-  for(int strand = 0; strand < 18; strand++) {
-    for(int pixel = 0; pixel < getNumPixels(strand); pixel++) {
+  for(int strand = 0; strand < NUM_STRANDS; strand++) {
+    for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
       leds[strand][pixel] = color;
     }
   }

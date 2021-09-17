@@ -69,8 +69,8 @@ void vizTwinkle(uint8_t speed) {
 
   uint8_t backgroundBrightness = bg.getAverageLight();
   
-  for(uint8_t strand = 0; strand < 18; strand++) {
-    for(uint8_t pixel = 0; pixel < getNumPixels(strand); pixel++) {
+  for(uint8_t strand = 0; strand < NUM_STRANDS; strand++) {
+    for(uint8_t pixel = 0; pixel < STRAND_LENGTH; pixel++) {
       leds[strand][pixel] = getTwinkleColor(PRNG16, clock32, bg, backgroundBrightness);
     }
   }

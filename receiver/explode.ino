@@ -23,12 +23,12 @@ bool isCloseToOuterCorner(uint16_t x, uint16_t y) {
 void vizExplode(float speed) {
   fadeToBlackBy(dotsInner, LEDS_INNER, 20);
   fadeToBlackBy(dotsOuter, LEDS_OUTER, 20);
-  for (int strand = 0; strand < 18; strand++) {
-    fadeToBlackBy(leds[strand], getNumPixels(strand), 20);
+  for (int strand = 0; strand < NUM_STRANDS; strand++) {
+    fadeToBlackBy(leds[strand], STRAND_LENGTH, 20);
   }
 
-  for (int strand = 0; strand < 18; strand++) {
-    if (explodePixel < getNumPixels(strand)) {
+  for (int strand = 0; strand < NUM_STRANDS; strand++) {
+    if (explodePixel < STRAND_LENGTH) {
       int pixel = (int)explodePixel;
       leds[strand][pixel] = getStrandGradientColor(strand, pixel);
     }
@@ -41,7 +41,7 @@ void vizExplode(float speed) {
         dotsInner[pixel] = getInnerGradientColor(pixel);
       }
     }
-  } else if (!exploded && explodePixel > 50) {
+  } else if (!exploded && explodePixel > STRAND_LENGTH) {
     exploded = true;
     for(int pixel = 0; pixel < LEDS_OUTER; pixel++) {
       if (isCloseToOuterCorner(outerX[pixel], outerY[pixel])) {
