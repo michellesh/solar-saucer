@@ -169,7 +169,7 @@ void setup() {
 }
 
 // Create a 24 bit color value from R,G,B
-uint8_t getNumPixels(uint8_t strandNumber) {
+int getNumPixels(int strandNumber) {
   return strandNumber == 12 ? LEDS_12
          : strandNumber == 13 ? LEDS_13
          : strandNumber == 14 ? LEDS_14
@@ -255,7 +255,7 @@ void loop() {
 
   // Strobe
   if (strobeOn) {
-    setAllGradient(colorLeft, colorRight);
+    setAllGradient();
   }
 
   // Brightness
@@ -265,30 +265,16 @@ void loop() {
 }
 
 void setAllBrightness(uint8_t b) {
-  for(uint8_t strand = 0; strand < 18; strand++) {
-    for(uint8_t pixel = 0; pixel < getNumPixels(strand); pixel++) {
+  for(int strand = 0; strand < 18; strand++) {
+    for(int pixel = 0; pixel < getNumPixels(strand); pixel++) {
       leds[strand][pixel].nscale8(b);
     }
   }
-  for(uint8_t pixel = 0; pixel < LEDS_INNER; pixel++) {
+  for(int pixel = 0; pixel < LEDS_INNER; pixel++) {
     dotsInner[pixel].nscale8(b);
   }
-  for(uint8_t pixel = 0; pixel < LEDS_OUTER; pixel++) {
+  for(int pixel = 0; pixel < LEDS_OUTER; pixel++) {
     dotsOuter[pixel].nscale8(b);
-  }
-}
-
-void setAllColor(CRGB color) {
-  for(uint8_t strand = 0; strand < 18; strand++) {
-    for(uint8_t pixel = 0; pixel < getNumPixels(strand); pixel++) {
-      leds[strand][pixel] = color;
-    }
-  }
-  for(uint8_t pixel = 0; pixel < LEDS_INNER; pixel++) {
-    dotsInner[pixel] = color;
-  }
-  for(uint8_t pixel = 0; pixel < LEDS_OUTER; pixel++) {
-    dotsOuter[pixel] = color;
   }
 }
 
@@ -300,21 +286,46 @@ CRGB getColorAlongGradient(CRGB color1, CRGB color2, float percent) {
   );
 }
 
-void setAllGradient(CRGB colorLeft, CRGB colorRight) {
-  float percent;
-  for(uint8_t strand = 0; strand < 18; strand++) {
-    for(uint8_t pixel = 0; pixel < getNumPixels(strand); pixel++) {
-      percent = (float)(ledX[strand][pixel] / (float)xyMax);
-      leds[strand][pixel] = getColorAlongGradient(colorLeft, colorRight, percent);
+CRGB getStrandGradientColor(int strand, int pixel) {
+  float percent = (float)(ledX[strand][pixel] / (float)xyMax);
+  return getColorAlongGradient(colorLeft, colorRight, percent);
+}
+
+CRGB getInnerGradientColor(int pixel) {
+  float percent = (float)innerX[pixel] / (float)xyMax;
+  return getColorAlongGradient(colorLeft, colorRight, percent);
+}
+
+CRGB getOuterGradientColor(int pixel) {
+  float percent = (float)outerX[pixel] / (float)xyMax;
+  return getColorAlongGradient(colorLeft, colorRight, percent);
+}
+
+void setAllGradient() {
+  for(int strand = 0; strand < 18; strand++) {
+    for(int pixel = 0; pixel < getNumPixels(strand); pixel++) {
+      leds[strand][pixel] = getStrandGradientColor(strand, pixel);
     }
   }
-  for(uint8_t pixel = 0; pixel < LEDS_INNER; pixel++) {
-    percent = (float)innerX[pixel] / (float)xyMax;
-    dotsInner[pixel] = getColorAlongGradient(colorLeft, colorRight, percent);
+  for(int pixel = 0; pixel < LEDS_INNER; pixel++) {
+    dotsInner[pixel] = getInnerGradientColor(pixel);
   }
-  for(uint8_t pixel = 0; pixel < LEDS_OUTER; pixel++) {
-    percent = (float)outerX[pixel] / (float)xyMax;
-    dotsOuter[pixel] = getColorAlongGradient(colorLeft, colorRight, percent);
+  for(int pixel = 0; pixel < LEDS_OUTER; pixel++) {
+    dotsOuter[pixel] = getOuterGradientColor(pixel);
+  }
+}
+
+void setAllColor(CRGB color) {
+  for(int strand = 0; strand < 18; strand++) {
+    for(int pixel = 0; pixel < getNumPixels(strand); pixel++) {
+      leds[strand][pixel] = color;
+    }
+  }
+  for(int pixel = 0; pixel < LEDS_INNER; pixel++) {
+    dotsInner[pixel] = color;
+  }
+  for(int pixel = 0; pixel < LEDS_OUTER; pixel++) {
+    dotsOuter[pixel] = color;
   }
 }
 

@@ -32,22 +32,23 @@ void vizExplode(float speed) {
 
   for (int strand = 0; strand < 18; strand++) {
     if (explodePixel < getNumPixels(strand)) {
-      leds[strand][(int)explodePixel] = CRGB::White;
+      int pixel = (int)explodePixel;
+      leds[strand][pixel] = getStrandGradientColor(strand, pixel);
     }
   }
 
   if (explodePixel == 0) {
     exploded = false;
-    for(uint8_t pixel = 0; pixel < LEDS_INNER; pixel++) {
+    for(int pixel = 0; pixel < LEDS_INNER; pixel++) {
       if (isCloseToInnerCorner(innerX[pixel], innerY[pixel])) {
-        dotsInner[pixel] = CRGB::White;
+        dotsInner[pixel] = getInnerGradientColor(pixel);
       }
     }
   } else if (!exploded && explodePixel > 50) {
     exploded = true;
-    for(uint8_t pixel = 0; pixel < LEDS_OUTER; pixel++) {
+    for(int pixel = 0; pixel < LEDS_OUTER; pixel++) {
       if (isCloseToOuterCorner(outerX[pixel], outerY[pixel])) {
-        dotsOuter[pixel] = CRGB::White;
+        dotsOuter[pixel] = getOuterGradientColor(pixel);
       }
     }
   }
