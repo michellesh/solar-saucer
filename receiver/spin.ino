@@ -3,8 +3,26 @@ int startAngle = 360 * 2 / 3;
 int outerEndAngle = 360 / 3;
 
 int getStrandAngle(int strand) {
-  int c = xyMax / 2; // both cx and cy (circle origin)
-  return degrees(atan2(ledY[strand][0] - c, ledX[strand][0] - c)) + 90;
+  switch (strand) {
+    case 0: return 360 * 6 / 9;
+    case 1: return 360 * 7 / 9;
+    case 2: return 360 * 7 / 9;
+    case 3: return 360 * 8 / 9;
+    case 4: return 360 * 8 / 9;
+    case 5: return 0;
+    case 6: return 0;
+    case 7: return 360 * 1 / 9;
+    case 8: return 360 * 1 / 9;
+    case 9: return 360 * 2 / 9;
+    case 10: return 360 * 2 / 9;
+    case 11: return 360 * 3 / 9;
+    case 12: return 360 * 3 / 9;
+    case 13: return 360 * 4 / 9;
+    case 14: return 360 * 4 / 9;
+    case 15: return 360 * 5 / 9;
+    case 16: return 360 * 5 / 9;
+    case 17: return 360 * 6 / 9;
+  }
 }
 
 int getInnerDotAngle(int pixel) {
