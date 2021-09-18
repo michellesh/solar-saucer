@@ -34,18 +34,18 @@ void vizSpin(float speed) {
   for (int strand = 0; strand < NUM_STRANDS; strand++) {
     for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
       if (abs(spinAngle - pixelAngles[strand][pixel]) < 5) {
-        leds[strand][pixel] = getStrandGradientColor(strand, pixel);
+        leds[strand][pixel] = getStrandModeColor(strand, pixel);
       }
     }
   }
   for(int pixel = 0; pixel < LEDS_INNER; pixel++) {
     if (abs(spinAngle - pixelAnglesInner[pixel]) < 5) {
-      dotsInner[pixel] = getInnerGradientColor(pixel);
+      dotsInner[pixel] = getInnerModeColor(pixel);
     }
   }
   for(int pixel = 0; pixel < LEDS_OUTER; pixel++) {
     if (abs(spinAngle - pixelAnglesOuter[pixel]) < 5) {
-      dotsOuter[pixel] = getOuterGradientColor(pixel);
+      dotsOuter[pixel] = getOuterModeColor(pixel);
     }
   }
 

@@ -30,7 +30,7 @@ void vizExplode(float speed) {
   for (int strand = 0; strand < NUM_STRANDS; strand++) {
     if (explodePixel < STRAND_LENGTH) {
       int pixel = (int)explodePixel;
-      leds[strand][pixel] = getStrandGradientColor(strand, pixel);
+      leds[strand][pixel] = getStrandModeColor(strand, pixel);
     }
   }
 
@@ -38,14 +38,14 @@ void vizExplode(float speed) {
     exploded = false;
     for(int pixel = 0; pixel < LEDS_INNER; pixel++) {
       if (isCloseToInnerCorner(innerX[pixel], innerY[pixel])) {
-        dotsInner[pixel] = getInnerGradientColor(pixel);
+        dotsInner[pixel] = getInnerModeColor(pixel);
       }
     }
   } else if (!exploded && explodePixel > STRAND_LENGTH) {
     exploded = true;
     for(int pixel = 0; pixel < LEDS_OUTER; pixel++) {
       if (isCloseToOuterCorner(outerX[pixel], outerY[pixel])) {
-        dotsOuter[pixel] = getOuterGradientColor(pixel);
+        dotsOuter[pixel] = getOuterModeColor(pixel);
       }
     }
   }

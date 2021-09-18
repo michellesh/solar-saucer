@@ -1,19 +1,4 @@
 CRGB getColorBetween(CRGB color1, CRGB color2, float percent) {
-  EVERY_N_SECONDS(1) {
-    int rounded = percent * 100;
-    if (rounded == 90) {
-      Serial.print(color1.r);
-      Serial.print(" ");
-      Serial.print(color1.g);
-      Serial.print(" ");
-      Serial.println(color1.b);
-      Serial.print(color2.r);
-      Serial.print(" ");
-      Serial.print(color2.g);
-      Serial.print(" ");
-      Serial.println(color2.b);
-    }
-  }
   return CRGB(
     color1.r + percent * (color2.r - color1.r),
     color1.g + percent * (color2.g - color1.g),
@@ -65,41 +50,53 @@ CRGB getOuterWheelColor(int pixel) {
   return getWheelColor(pixelAnglesOuter[pixel]);
 }
 
+CRGB getStrandModeColor(int strand, int pixel) {
+  if (colorMode == COLOR_MODE_WHEEL) {
+    return getStrandWheelColor(strand, pixel);
+  } else if (colorMode == COLOR_MODE_GRADIENT) {
+    return getStrandGradientColor(strand, pixel);
+  } else if (colorMode == COLOR_MODE_SOLID) {
+    return activeColor;
+  } else {
+    return CRGB(0, 0, 0);
+  }
+}
+
+CRGB getInnerModeColor(int pixel) {
+  if (colorMode == COLOR_MODE_WHEEL) {
+    return getInnerWheelColor(pixel);
+  } else if (colorMode == COLOR_MODE_GRADIENT) {
+    return getInnerGradientColor(pixel);
+  } else if (colorMode == COLOR_MODE_SOLID) {
+    return activeColor;
+  } else {
+    return CRGB(0, 0, 0);
+  }
+}
+
+CRGB getOuterModeColor(int pixel) {
+  if (colorMode == COLOR_MODE_WHEEL) {
+    return getOuterWheelColor(pixel);
+  } else if (colorMode == COLOR_MODE_GRADIENT) {
+    return getOuterGradientColor(pixel);
+  } else if (colorMode == COLOR_MODE_SOLID) {
+    return activeColor;
+  } else {
+    return CRGB(0, 0, 0);
+  }
+}
+
 void setAllColorMode() {
   for(int strand = 0; strand < NUM_STRANDS; strand++) {
     for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
-      if (colorMode == COLOR_MODE_WHEEL) {
-        leds[strand][pixel] = getStrandWheelColor(strand, pixel);
-      } else if (colorMode == COLOR_MODE_GRADIENT) {
-        leds[strand][pixel] = getStrandGradientColor(strand, pixel);
-      } else if (colorMode == COLOR_MODE_SOLID) {
-        leds[strand][pixel] = activeColor;
-      } else { // black
-        leds[strand][pixel] = CRGB(0, 0, 0);
-      }
+      leds[strand][pixel] = getStrandModeColor(strand, pixel);
     }
   }
   for(int pixel = 0; pixel < LEDS_INNER; pixel++) {
-    if (colorMode == COLOR_MODE_WHEEL) {
-      dotsInner[pixel] = getInnerWheelColor(pixel);
-    } else if (colorMode == COLOR_MODE_GRADIENT) {
-      dotsInner[pixel] = getInnerGradientColor(pixel);
-    } else if (colorMode == COLOR_MODE_SOLID) {
-      dotsInner[pixel] = activeColor;
-    } else { // black
-      dotsInner[pixel] = CRGB(0, 0, 0);
-    }
+    dotsInner[pixel] = getInnerModeColor(pixel);
   }
   for(int pixel = 0; pixel < LEDS_OUTER; pixel++) {
-    if (colorMode == COLOR_MODE_WHEEL) {
-      dotsOuter[pixel] = getOuterWheelColor(pixel);
-    } else if (colorMode == COLOR_MODE_GRADIENT) {
-      dotsOuter[pixel] = getOuterGradientColor(pixel);
-    } else if (colorMode == COLOR_MODE_SOLID) {
-      dotsOuter[pixel] = activeColor;
-    } else { // black
-      dotsOuter[pixel] = CRGB(0, 0, 0);
-    }
+    dotsOuter[pixel] = getOuterModeColor(pixel);
   }
 }
 

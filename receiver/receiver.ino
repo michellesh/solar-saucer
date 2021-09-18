@@ -185,7 +185,7 @@ void loop() {
       float explodeSpeed = mapf(speed, 1, 10, 0.2, 2.0);
       vizExplode(explodeSpeed);
     } else if (activeViz == VIZ_SPIN) {
-      vizSpin(speed);
+      vizSpin(mapf(speed, 1, 10, 1, 20)); // TODO looks choppy at faster speeds
     } else if (activeViz == VIZ_TWINKLE) {
       EVERY_N_MILLISECONDS(10) {
         nblendPaletteTowardPalette(gCurrentPalette, gTargetPalette, 12);
