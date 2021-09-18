@@ -1,76 +1,14 @@
 #define FASTLED_ESP8266_NODEMCU_PIN_ORDER
-#include "xy.h"
-#include "solar_saucer_shared.h"
-#include "secrets.h"
-#include "utils.h"
 #include <ESP8266WiFi.h>
 #include <FastLED.h>
 #include <espnow.h>
+
+#include "solar_saucer_shared.h"
+#include "globals.h"
+#include "xy.h"
+#include "secrets.h"
+#include "utils.h"
 #include "palettes.h"
-
-#define BRIGHTNESS      255
-#define COLOR_ORDER     GRB
-#define LED_TYPE        WS2813
-#define NUM_STRANDS     18
-#define STRAND_LENGTH   50
-
-#define DATA_PIN_0  0
-#define DATA_PIN_1  1
-#define DATA_PIN_2  2
-#define DATA_PIN_3  3
-#define DATA_PIN_4  4
-#define DATA_PIN_5  5
-#define DATA_PIN_6  6
-#define DATA_PIN_7  7
-#define DATA_PIN_8  8
-
-#define GPIO_0   0   // D3 data (yellow wire on dots)
-#define GPIO_2   2   // D4 clock (green wire on dots)
-#define GPIO_13  13  // D7 data (yellow wire on dots)
-#define GPIO_15  15  // D8 clock (green wire on dots)
-
-#define LEDS_INNER  60
-#define LEDS_OUTER  120
-
-CRGB leds_0[STRAND_LENGTH];  // Strip 1
-CRGB leds_1[STRAND_LENGTH];
-CRGB leds_2[STRAND_LENGTH];
-CRGB leds_3[STRAND_LENGTH];
-CRGB leds_4[STRAND_LENGTH];
-CRGB leds_5[STRAND_LENGTH];
-CRGB leds_6[STRAND_LENGTH];
-CRGB leds_7[STRAND_LENGTH];
-CRGB leds_8[STRAND_LENGTH];
-CRGB leds_9[STRAND_LENGTH];
-CRGB leds_10[STRAND_LENGTH];
-CRGB leds_11[STRAND_LENGTH];
-CRGB leds_12[STRAND_LENGTH];
-CRGB leds_13[STRAND_LENGTH];
-CRGB leds_14[STRAND_LENGTH];
-CRGB leds_15[STRAND_LENGTH];
-CRGB leds_16[STRAND_LENGTH];
-CRGB leds_17[STRAND_LENGTH];
-CRGB *leds[] = {
-  leds_0, leds_1, leds_2, leds_3, leds_4, leds_5, leds_6,
-  leds_7, leds_8, leds_9, leds_10, leds_11, leds_12, leds_13,
-  leds_14, leds_15, leds_16, leds_17
-};
-CRGB dotsInner[LEDS_INNER];
-CRGB dotsOuter[LEDS_OUTER];
-
-byte boardNumber;
-bool strobeOn = false;
-uint8_t brightness = BRIGHTNESS;
-uint8_t activeViz = VIZ_DEFAULT;
-uint8_t speed = 1;
-int spinAngle = 240;
-float explodePixel = 0;
-bool exploded = false;
-int colorMode = COLOR_MODE_SOLID;
-CRGB activeColor = CRGB(0, 0, 0);
-CRGB colorLeft = CRGB::White;
-CRGB colorRight = CRGB::White;
-msg data;
 
 void setup() {
   Serial.begin(115200);
@@ -244,7 +182,7 @@ void loop() {
   EVERY_N_MILLISECONDS(20) {
     // Background pattern
     if (activeViz == VIZ_DEFAULT) {
-      setAllColor(CRGB(0, 0, 0));
+      setAll(); // set all to black
     } else if (activeViz == VIZ_EXPLODE) {
       float explodeSpeed = mapf(speed, 1, 10, 0.2, 2.0);
       vizExplode(explodeSpeed);
@@ -266,83 +204,5 @@ void loop() {
     setAllBrightness(brightness);
 
     FastLED.show();
-  }
-}
-
-void setAllBrightness(uint8_t b) {
-  for(int strand = 0; strand < NUM_STRANDS; strand++) {
-    for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
-      leds[strand][pixel].nscale8(b);
-    }
-  }
-  for(int pixel = 0; pixel < LEDS_INNER; pixel++) {
-    dotsInner[pixel].nscale8(b);
-  }
-  for(int pixel = 0; pixel < LEDS_OUTER; pixel++) {
-    dotsOuter[pixel].nscale8(b);
-  }
-}
-
-CRGB getColorAlongGradient(CRGB color1, CRGB color2, float percent) {
-  return CRGB(
-    color1.r + percent * (color2.r - color1.r),
-    color1.g + percent * (color2.g - color1.g),
-    color1.b + percent * (color2.b - color1.b)
-  );
-}
-
-CRGB getStrandGradientColor(int strand, int pixel) {
-  float percent = (float)(ledX[strand][pixel] / (float)xyMax);
-  return getColorAlongGradient(colorLeft, colorRight, percent);
-}
-
-CRGB getInnerGradientColor(int pixel) {
-  float percent = (float)innerX[pixel] / (float)xyMax;
-  return getColorAlongGradient(colorLeft, colorRight, percent);
-}
-
-CRGB getOuterGradientColor(int pixel) {
-  float percent = (float)outerX[pixel] / (float)xyMax;
-  return getColorAlongGradient(colorLeft, colorRight, percent);
-}
-
-CRGB getStrandWheelColor(int strand, int pixel) {
-}
-
-CRGB getInnerWheelColor(int pixel) {
-}
-
-CRGB getOuterWheelColor(int pixel) {
-}
-
-void setAll() {
-  for(int strand = 0; strand < NUM_STRANDS; strand++) {
-    for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
-      if (colorMode == COLOR_MODE_WHEEL) {
-        leds[strand][pixel] = getStrandWheelColor(strand, pixel);
-      } else if (colorMode == COLOR_MODE_GRADIENT) {
-        leds[strand][pixel] = getStrandGradientColor(strand, pixel);
-      } else { // solid
-        leds[strand][pixel] = activeColor;
-      }
-    }
-  }
-  for(int pixel = 0; pixel < LEDS_INNER; pixel++) {
-    if (colorMode == COLOR_MODE_WHEEL) {
-      dotsInner[pixel] = getInnerWheelColor(pixel);
-    } else if (colorMode == COLOR_MODE_GRADIENT) {
-      dotsInner[pixel] = getInnerGradientColor(pixel);
-    } else { // solid
-      dotsInner[pixel] = activeColor;
-    }
-  }
-  for(int pixel = 0; pixel < LEDS_OUTER; pixel++) {
-    if (colorMode == COLOR_MODE_WHEEL) {
-      dotsOuter[pixel] = getOuterWheelColor(pixel);
-    } else if (colorMode == COLOR_MODE_GRADIENT) {
-      dotsOuter[pixel] = getOuterGradientColor(pixel);
-    } else { // solid
-      dotsOuter[pixel] = activeColor;
-    }
   }
 }

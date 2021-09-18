@@ -1,30 +1,3 @@
-int pixelAngles_0[STRAND_LENGTH];
-int pixelAngles_1[STRAND_LENGTH];
-int pixelAngles_2[STRAND_LENGTH];
-int pixelAngles_3[STRAND_LENGTH];
-int pixelAngles_4[STRAND_LENGTH];
-int pixelAngles_5[STRAND_LENGTH];
-int pixelAngles_6[STRAND_LENGTH];
-int pixelAngles_7[STRAND_LENGTH];
-int pixelAngles_8[STRAND_LENGTH];
-int pixelAngles_9[STRAND_LENGTH];
-int pixelAngles_10[STRAND_LENGTH];
-int pixelAngles_11[STRAND_LENGTH];
-int pixelAngles_12[STRAND_LENGTH];
-int pixelAngles_13[STRAND_LENGTH];
-int pixelAngles_14[STRAND_LENGTH];
-int pixelAngles_15[STRAND_LENGTH];
-int pixelAngles_16[STRAND_LENGTH];
-int pixelAngles_17[STRAND_LENGTH];
-int *pixelAngles[] = {
-  pixelAngles_0, pixelAngles_1, pixelAngles_2, pixelAngles_3, pixelAngles_4,
-  pixelAngles_5, pixelAngles_6, pixelAngles_7, pixelAngles_8, pixelAngles_9,
-  pixelAngles_10, pixelAngles_11, pixelAngles_12, pixelAngles_13,
-  pixelAngles_14, pixelAngles_15, pixelAngles_16, pixelAngles_17
-};
-int pixelAnglesInner[LEDS_INNER];
-int pixelAnglesOuter[LEDS_OUTER];
-
 void initPixelAngles() {
   for (int strand = 0; strand < NUM_STRANDS; strand++) {
     for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
