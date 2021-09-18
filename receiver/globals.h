@@ -84,7 +84,7 @@ int spinAngle = 240;
 float explodePixel = 0;
 bool exploded = false;
 int colorMode = COLOR_MODE_SOLID;
-CRGB activeColor = CRGB(0, 0, 0);
+CRGB activeColor = CRGB(255, 255, 255);
 CRGB colorLeft = CRGB::White;
 CRGB colorRight = CRGB::White;
 msg data;
