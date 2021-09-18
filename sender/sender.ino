@@ -138,6 +138,17 @@ void cycleBackground() {
   background.value = backgrounds[newIndex];
 }
 
+
+void setColorMsg(Slider &slider, msg &color) {
+  if (slider.value < 100) { // Set to white
+    color.value = 0;
+    color.value2 = 0;
+  } else {
+    color.value = sliderToHue(slider.value);
+    color.value2 = 255;
+  }
+}
+
 void sendSliderValues() {
   digitalWrite(slider1.pin, HIGH);
   delay(100);
@@ -164,24 +175,12 @@ void sendSliderValues() {
   slider1.prev = slider1.value;
   delay(100);
 
-  if (slider2.value < 100) { // White
-    colorLeft.value = 0;
-    colorLeft.value2 = 0;
-  } else {
-    colorLeft.value = sliderToHue(slider2.value);
-    colorLeft.value2 = 255;
-  }
+  setColorMsg(slider2, colorLeft);
   send(colorLeft);
   slider2.prev = slider2.value;
   delay(100);
 
-  if (slider3.value < 100) { // White
-    colorRight.value = 0;
-    colorRight.value2 = 0;
-  } else {
-    colorRight.value = sliderToHue(slider3.value);
-    colorRight.value2 = 255;
-  }
+  setColorMsg(slider3, colorRight);
   send(colorRight);
   slider3.prev = slider3.value;
   delay(100);
@@ -232,13 +231,7 @@ void loop() {
   }
 
   if (sliderValueChanged(slider2)) {
-    if (slider2.value < 100) { // White
-      colorLeft.value = 0;
-      colorLeft.value2 = 0;
-    } else {
-      colorLeft.value = sliderToHue(slider2.value);
-      colorLeft.value2 = 255;
-    }
+    setColorMsg(slider2, colorLeft);
     Serial.print("COLOR LEFT changed: ");
     Serial.println(colorLeft.value);
     send(colorLeft);
@@ -246,13 +239,7 @@ void loop() {
   }
 
   if (sliderValueChanged(slider3)) {
-    if (slider3.value < 100) { // White
-      colorRight.value = 0;
-      colorRight.value2 = 0;
-    } else {
-      colorRight.value = sliderToHue(slider3.value);
-      colorRight.value2 = 255;
-    }
+    setColorMsg(slider3, colorRight);
     Serial.print("COLOR RIGHT changed: ");
     Serial.println(colorRight.value);
     send(colorRight);
