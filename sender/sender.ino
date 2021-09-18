@@ -1,8 +1,9 @@
-#include "solar_saucer_shared.h"
-#include "secrets.h"
 #include <ESP8266WiFi.h>
 #include <FastLED.h>
 #include <espnow.h>
+
+#include "solar_saucer_shared.h"
+#include "secrets.h"
 
 #define SLIDER_1       15  // D8
 #define SLIDER_2       5   // D1
@@ -47,6 +48,7 @@ msg brightness = {ACTION_SET_BRIGHTNESS};
 msg colorLeft = {ACTION_SET_COLOR_LEFT};
 msg colorRight = {ACTION_SET_COLOR_RIGHT};
 msg speed = {ACTION_SPEED};
+msg data;
 
 // Button Actions
 msg background = {ACTION_SET_BACKGROUND, VIZ_DEFAULT};
@@ -83,6 +85,7 @@ void setup() {
   }
 
   esp_now_set_self_role(ESP_NOW_ROLE_CONTROLLER);
+  esp_now_register_recv_cb(OnDataRecv);
 
   esp_now_add_peer(ss_broadcastAddress1, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
   esp_now_add_peer(ss_broadcastAddress2, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
@@ -99,11 +102,15 @@ void setup() {
   pinMode(SLIDER_4, OUTPUT);
   pinMode(A0, INPUT);
 
-  initSliderValues();
+  sendSliderValues();
 }
 
-void send(msg m) {
-  esp_now_send(0, (uint8_t *) &m, sizeof(m));
+void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
+  memcpy(&data, incomingData, sizeof(data));
+
+  if (data.action == REQUEST_SLIDER_VALUES) {
+    sendSliderValues();
+  }
 }
 
 bool isButtonPressed(Button button) {
@@ -131,7 +138,7 @@ void cycleBackground() {
   background.value = backgrounds[newIndex];
 }
 
-void initSliderValues() {
+void sendSliderValues() {
   digitalWrite(slider1.pin, HIGH);
   delay(100);
   slider1.value = analogRead(0);
@@ -157,12 +164,24 @@ void initSliderValues() {
   slider1.prev = slider1.value;
   delay(100);
 
-  colorLeft.value = sliderToHue(slider2.value);
+  if (slider2.value < 100) { // White
+    colorLeft.value = 0;
+    colorLeft.value2 = 0;
+  } else {
+    colorLeft.value = sliderToHue(slider2.value);
+    colorLeft.value2 = 255;
+  }
   send(colorLeft);
   slider2.prev = slider2.value;
   delay(100);
 
-  colorRight.value = sliderToHue(slider3.value);
+  if (slider3.value < 100) { // White
+    colorRight.value = 0;
+    colorRight.value2 = 0;
+  } else {
+    colorRight.value = sliderToHue(slider3.value);
+    colorRight.value2 = 255;
+  }
   send(colorRight);
   slider3.prev = slider3.value;
   delay(100);
@@ -213,7 +232,13 @@ void loop() {
   }
 
   if (sliderValueChanged(slider2)) {
-    colorLeft.value = sliderToHue(slider2.value);
+    if (slider2.value < 100) { // White
+      colorLeft.value = 0;
+      colorLeft.value2 = 0;
+    } else {
+      colorLeft.value = sliderToHue(slider2.value);
+      colorLeft.value2 = 255;
+    }
     Serial.print("COLOR LEFT changed: ");
     Serial.println(colorLeft.value);
     send(colorLeft);
@@ -221,7 +246,13 @@ void loop() {
   }
 
   if (sliderValueChanged(slider3)) {
-    colorRight.value = sliderToHue(slider3.value);
+    if (slider3.value < 100) { // White
+      colorRight.value = 0;
+      colorRight.value2 = 0;
+    } else {
+      colorRight.value = sliderToHue(slider3.value);
+      colorRight.value2 = 255;
+    }
     Serial.print("COLOR RIGHT changed: ");
     Serial.println(colorRight.value);
     send(colorRight);

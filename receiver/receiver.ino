@@ -23,6 +23,7 @@ void setup() {
 
   esp_now_set_self_role(ESP_NOW_ROLE_SLAVE);
   esp_now_register_recv_cb(OnDataRecv);
+  esp_now_add_peer(ss_senderAddress, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
 
   boardNumber = WiFi.macAddress() == ss_macAddress1   ? 1
                 : WiFi.macAddress() == ss_macAddress2 ? 2
@@ -103,6 +104,9 @@ void setup() {
   FastLED.setBrightness(BRIGHTNESS);
 
   initPixelAngles();
+
+  msg m = {REQUEST_SLIDER_VALUES};
+  send(m);
 }
 
 // Callback function that will be executed when data is received
@@ -121,14 +125,14 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   } else if (data.action == ACTION_SET_COLOR_LEFT) {
     Serial.print("ACTION_SET_COLOR_LEFT: ");
     Serial.println(data.value);
-    colorLeft = CHSV(data.value, 255, 255);
-    activeColor = CHSV(data.value, 255, 255);
+    colorLeft = CHSV(data.value, data.value2, 255);
+    activeColor = CHSV(data.value, data.value2, 255);
 
   } else if (data.action == ACTION_SET_COLOR_RIGHT) {
     Serial.print("ACTION_SET_COLOR_RIGHT: ");
     Serial.println(data.value);
-    colorRight = CHSV(data.value, 255, 255);
-    activeColor = CHSV(data.value, 255, 255);
+    colorRight = CHSV(data.value, data.value2, 255);
+    activeColor = CHSV(data.value, data.value2, 255);
 
   } else if (data.action == ACTION_SPEED) {
     Serial.print("ACTION_SPEED: ");

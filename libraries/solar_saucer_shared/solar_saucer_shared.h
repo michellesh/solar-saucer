@@ -10,6 +10,9 @@
 #define ACTION_STROBE_OFF        6
 #define ACTION_STROBE_ON         7
 
+// Receiver Actions
+#define REQUEST_SLIDER_VALUES    8
+
 // Visualizations
 #define VIZ_DEFAULT  0
 #define VIZ_TWINKLE  1
@@ -24,7 +27,12 @@
 typedef struct msg {
   uint8_t action;
   int value;
+  int value2;
 } msg;
+
+void send(msg m) {
+  esp_now_send(0, (uint8_t *) &m, sizeof(m));
+}
 
 auto scale(float domainStart, float domainEnd, float rangeStart, float rangeEnd, bool clamp = false) {
   return [=](float value) {

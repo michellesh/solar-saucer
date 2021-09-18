@@ -79,7 +79,7 @@ byte boardNumber;
 bool strobeOn = false;
 uint8_t brightness = BRIGHTNESS;
 uint8_t activeViz = VIZ_DEFAULT;
-uint8_t speed = 1;
+uint8_t speed = 5;
 int spinAngle = 240;
 float explodePixel = 0;
 bool exploded = false;
