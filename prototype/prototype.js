@@ -13,6 +13,8 @@ const OUTER_RADIUS = INNER_RADIUS + SOLAR_PANEL_LENGTH;
 
 const NUM_DOTS_OUTER = 120;
 const NUM_DOTS_INNER = 60;
+const NUM_STRANDS = 18;
+const STRAND_LENGTH = 50;
 
 const XY = (x, y) => Object.freeze({ x, y });
 
@@ -128,7 +130,7 @@ const getLedXY = (stripNumber, index) =>
   pointOnLine(
     ledStrips[offsetStripNumber(stripNumber)].p1,
     ledStrips[offsetStripNumber(stripNumber)].p2,
-    index / 50
+    index / STRAND_LENGTH
   );
 
 // Outer dots
@@ -156,6 +158,27 @@ const getInnerRingXY = index => {
   return pointOnCircumference(inner.r, inner.origin, degrees);
 };
 
+// Define the strand LEDs
+const leds = d3.range(NUM_STRANDS).map(strand =>
+  d3.range(STRAND_LENGTH).map(pixel => Dot(getLedXY(strand, pixel)))
+);
+
+// Define the outer dots
+const outerDots =
+  d3.range(outerStart, 360, outerDotStep).map(d =>
+    Dot(pointOnCircumference(outer.r, outer.origin, d))
+  ).concat(d3.range(0, outerEnd, outerDotStep).map(d =>
+    Dot(pointOnCircumference(outer.r, outer.origin, d))
+  ));
+
+// Define the inner dots
+const innerDots =
+  d3.range(innerStart, 360, innerDotStep).map(d =>
+    Dot(pointOnCircumference(inner.r, inner.origin, d))
+  ).concat(d3.range(0, innerStart, innerDotStep).map(d =>
+    Dot(pointOnCircumference(inner.r, inner.origin, d))
+  ));
+
 const draw = () => {
   const canvas = document.getElementById('canvas');
   if (canvas.getContext) {
@@ -176,16 +199,16 @@ const draw = () => {
     ledStrips.forEach(ledStrip => ledStrip.draw(ctx));
 
     // Output coordinates for all corners
-    document.getElementById('output').innerHTML = d3.range(0, 18)
+    document.getElementById('output').innerHTML = d3.range(0, NUM_STRANDS)
       .map(i => i + ': ' + ledStrips[offsetStripNumber(i)].output)
       .join('<br />');
 
     // Output coordinates for each LED on each strip
-    document.getElementById('output').innerHTML = d3.range(0, 18)
+    document.getElementById('output').innerHTML = d3.range(0, NUM_STRANDS)
       .flatMap(s => ([
-        'x' + s + ': ' + d3.range(0, 50).map(
+        'x' + s + ': ' + d3.range(0, STRAND_LENGTH).map(
           i => Math.round(getLedXY(s, i).x)).join(', '),
-        'y' + s + ': ' + d3.range(0, 50).map(
+        'y' + s + ': ' + d3.range(0, STRAND_LENGTH).map(
           i => Math.round(getLedXY(s, i).y)).join(', ')
       ])).join('<br />');
 
@@ -205,27 +228,16 @@ const draw = () => {
         i => Math.round(getOuterRingXY(i).y)).join(', ')
     ].join('<br />');
 
+    // Draw LEDs
+    innerDots.forEach(dot => dot.draw(ctx));
+    outerDots.forEach(dot => dot.draw(ctx));
+    leds.flatMap(strand => strand).forEach(led => led.draw(ctx));
+
     // Test getLedXY, highlight a random LED in red
     Dot(getLedXY(17, 20), 'red').draw(ctx);
 
-    // Draw the outer dots
-    d3.range(outerStart, 360, outerDotStep).map(d =>
-      Dot(pointOnCircumference(outer.r, outer.origin, d), 'blue', 1).draw(ctx)
-    );
-    d3.range(0, outerEnd, outerDotStep).map(d =>
-      Dot(pointOnCircumference(outer.r, outer.origin, d), 'blue', 1).draw(ctx)
-    );
-
     // Test getOuterRingXY, highlight a random LED in red
     Dot(getOuterRingXY(101), 'red').draw(ctx);
-
-    // Draw the inner dots
-    d3.range(innerStart, 360, innerDotStep).map(d =>
-      Dot(pointOnCircumference(inner.r, inner.origin, d), 'green', 1).draw(ctx)
-    );
-    d3.range(0, innerStart, innerDotStep).map(d =>
-      Dot(pointOnCircumference(inner.r, inner.origin, d), 'green', 1).draw(ctx)
-    );
 
     // Test getInnerRingXY, highlight a random LED in red
     Dot(getInnerRingXY(1), 'red').draw(ctx);
