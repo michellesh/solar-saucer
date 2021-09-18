@@ -19,6 +19,11 @@
 #define VIZ_EXPLODE  2
 #define VIZ_SPIN     3
 
+// Color Modes
+#define COLOR_MODE_SOLID     0
+#define COLOR_MODE_GRADIENT  1
+#define COLOR_MODE_WHEEL     2
+
 typedef struct msg {
   uint8_t action;
   int value;

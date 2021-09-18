@@ -38,6 +38,7 @@ struct Timer {
 };
 
 int backgrounds[] = {VIZ_TWINKLE, VIZ_EXPLODE, VIZ_SPIN};
+int colorMode = COLOR_MODE_SOLID;
 int activePalette = 0;
 int numPalettes = 9;
 int sliderIndex = -1;
@@ -259,8 +260,13 @@ void loop() {
         Serial.println("Red button: CYCLE COLOR MODE");
         redButton.pressed = true;
 
-        // TODO
-        //send();
+        colorMode = colorMode == COLOR_MODE_SOLID
+          ? COLOR_MODE_GRADIENT
+          : colorMode == COLOR_MODE_GRADIENT
+          ? COLOR_MODE_WHEEL
+          : COLOR_MODE_SOLID;
+        cycleColorMode.value = colorMode;
+        send(cycleColorMode);
       }
     } else {
       redButton.pressed = false;

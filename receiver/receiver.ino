@@ -6,7 +6,7 @@
 #include <ESP8266WiFi.h>
 #include <FastLED.h>
 #include <espnow.h>
-#include "colors.h"
+#include "palettes.h"
 
 #define BRIGHTNESS      255
 #define COLOR_ORDER     GRB
@@ -66,6 +66,8 @@ uint8_t speed = 1;
 int spinAngle = 240;
 float explodePixel = 0;
 bool exploded = false;
+int colorMode = COLOR_MODE_SOLID;
+CRGB activeColor = CRGB(0, 0, 0);
 CRGB colorLeft = CRGB::White;
 CRGB colorRight = CRGB::White;
 msg data;
@@ -176,34 +178,36 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
 
   // SLIDER ACTIONS
   if (data.action == ACTION_SET_BRIGHTNESS) {
-    Serial.print("ACTION_SET_BRIGHTNESS");
+    Serial.print("ACTION_SET_BRIGHTNESS: ");
     Serial.println(data.value);
     brightness = (uint8_t)data.value;
 
   } else if (data.action == ACTION_SET_COLOR_LEFT) {
-    Serial.print("ACTION_SET_COLOR_LEFT ");
+    Serial.print("ACTION_SET_COLOR_LEFT: ");
     Serial.println(data.value);
     colorLeft = CHSV(data.value, 255, 255);
+    activeColor = CHSV(data.value, 255, 255);
 
     int paletteIndex = map(data.value, 0, 255, 0, 8);
     gCurrentPalette = *(ActivePaletteList[paletteIndex]);
 
   } else if (data.action == ACTION_SET_COLOR_RIGHT) {
-    Serial.print("ACTION_SET_COLOR_RIGHT ");
+    Serial.print("ACTION_SET_COLOR_RIGHT: ");
     Serial.println(data.value);
     colorRight = CHSV(data.value, 255, 255);
+    activeColor = CHSV(data.value, 255, 255);
 
     int paletteIndex = map(data.value, 0, 255, 0, 8);
     gCurrentPalette = *(ActivePaletteList[paletteIndex]);
 
   } else if (data.action == ACTION_SPEED) {
-    Serial.print("ACTION_SPEED");
+    Serial.print("ACTION_SPEED: ");
     Serial.println(data.value);
     speed = data.value;
 
   // BUTTON ACTIONS
   } else if (data.action == ACTION_SET_BACKGROUND) {
-    Serial.print("ACTION_SET_BACKGROUND");
+    Serial.print("ACTION_SET_BACKGROUND: ");
     Serial.println(data.value);
     activeViz = data.value;
     if (activeViz == VIZ_SPIN) {
@@ -212,6 +216,11 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
       explodePixel = 0;
       exploded = false;
     }
+
+  } else if (data.action == ACTION_CYCLE_COLOR_MODE) {
+    Serial.print("ACTION_CYCLE_COLOR_MODE: ");
+    Serial.println(data.value);
+    colorMode = data.value;
 
   } else if (data.action == ACTION_STROBE_ON) {
     Serial.print("ACTION_STROBE_ON");
@@ -223,7 +232,7 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
 
   // AUTO ACTIONS
   } else if (data.action == ACTION_SET_PALETTE) {
-    Serial.print("ACTION_SET_PALETTE ");
+    Serial.print("ACTION_SET_PALETTE: ");
     Serial.println(data.value);
 
     gTargetPalette = *(ActivePaletteList[data.value]);
@@ -250,7 +259,7 @@ void loop() {
 
     // Strobe
     if (strobeOn) {
-      setAllGradient();
+      setAll();
     }
 
     // Brightness
@@ -297,30 +306,43 @@ CRGB getOuterGradientColor(int pixel) {
   return getColorAlongGradient(colorLeft, colorRight, percent);
 }
 
-void setAllGradient() {
-  for(int strand = 0; strand < NUM_STRANDS; strand++) {
-    for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
-      leds[strand][pixel] = getStrandGradientColor(strand, pixel);
-    }
-  }
-  for(int pixel = 0; pixel < LEDS_INNER; pixel++) {
-    dotsInner[pixel] = getInnerGradientColor(pixel);
-  }
-  for(int pixel = 0; pixel < LEDS_OUTER; pixel++) {
-    dotsOuter[pixel] = getOuterGradientColor(pixel);
-  }
+CRGB getStrandWheelColor(int strand, int pixel) {
 }
 
-void setAllColor(CRGB color) {
+CRGB getInnerWheelColor(int pixel) {
+}
+
+CRGB getOuterWheelColor(int pixel) {
+}
+
+void setAll() {
   for(int strand = 0; strand < NUM_STRANDS; strand++) {
     for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
-      leds[strand][pixel] = color;
+      if (colorMode == COLOR_MODE_WHEEL) {
+        leds[strand][pixel] = getStrandWheelColor(strand, pixel);
+      } else if (colorMode == COLOR_MODE_GRADIENT) {
+        leds[strand][pixel] = getStrandGradientColor(strand, pixel);
+      } else { // solid
+        leds[strand][pixel] = activeColor;
+      }
     }
   }
   for(int pixel = 0; pixel < LEDS_INNER; pixel++) {
-    dotsInner[pixel] = color;
+    if (colorMode == COLOR_MODE_WHEEL) {
+      dotsInner[pixel] = getInnerWheelColor(pixel);
+    } else if (colorMode == COLOR_MODE_GRADIENT) {
+      dotsInner[pixel] = getInnerGradientColor(pixel);
+    } else { // solid
+      dotsInner[pixel] = activeColor;
+    }
   }
   for(int pixel = 0; pixel < LEDS_OUTER; pixel++) {
-    dotsOuter[pixel] = color;
+    if (colorMode == COLOR_MODE_WHEEL) {
+      dotsOuter[pixel] = getOuterWheelColor(pixel);
+    } else if (colorMode == COLOR_MODE_GRADIENT) {
+      dotsOuter[pixel] = getOuterGradientColor(pixel);
+    } else { // solid
+      dotsOuter[pixel] = activeColor;
+    }
   }
 }
