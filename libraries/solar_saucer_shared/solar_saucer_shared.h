@@ -10,9 +10,6 @@
 #define ACTION_STROBE_OFF        6
 #define ACTION_STROBE_ON         7
 
-// Auto Actions
-#define ACTION_SET_PALETTE       8
-
 // Visualizations
 #define VIZ_DEFAULT  0
 #define VIZ_TWINKLE  1

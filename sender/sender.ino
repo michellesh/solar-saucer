@@ -39,8 +39,6 @@ struct Timer {
 
 int backgrounds[] = {VIZ_TWINKLE, VIZ_EXPLODE, VIZ_SPIN};
 int colorMode = COLOR_MODE_SOLID;
-int activePalette = 0;
-int numPalettes = 9;
 int sliderIndex = -1;
 unsigned long backgroundCycleTime = 1000 * 60 * 4; // 4 minutes
 
@@ -55,9 +53,6 @@ msg background = {ACTION_SET_BACKGROUND, VIZ_DEFAULT};
 msg cycleColorMode = {ACTION_CYCLE_COLOR_MODE};
 msg strobeOff = {ACTION_STROBE_OFF};
 msg strobeOn = {ACTION_STROBE_ON};
-
-// Auto Actions
-msg palette = {ACTION_SET_PALETTE};
 
 Button redButton = {RED_BUTTON, false};
 Button blueButton = {BLUE_BUTTON, false};
@@ -184,12 +179,6 @@ void loop() {
     cycleBackground();
     send(background);
     backgroundTimer.reset();
-  }
-
-  EVERY_N_SECONDS(10) {
-    activePalette = activePalette == numPalettes - 1 ? 0 : activePalette + 1;
-    palette.value = activePalette;
-    send(palette);
   }
 
   EVERY_N_MILLISECONDS(100) {

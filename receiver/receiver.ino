@@ -8,7 +8,6 @@
 #include "xy.h"
 #include "secrets.h"
 #include "utils.h"
-#include "palettes.h"
 
 void setup() {
   Serial.begin(115200);
@@ -103,7 +102,6 @@ void setup() {
 
   FastLED.setBrightness(BRIGHTNESS);
 
-  chooseNextColorPalette(gTargetPalette);
   initPixelAngles();
 }
 
@@ -126,17 +124,11 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
     colorLeft = CHSV(data.value, 255, 255);
     activeColor = CHSV(data.value, 255, 255);
 
-    int paletteIndex = map(data.value, 0, 255, 0, 8);
-    gCurrentPalette = *(ActivePaletteList[paletteIndex]);
-
   } else if (data.action == ACTION_SET_COLOR_RIGHT) {
     Serial.print("ACTION_SET_COLOR_RIGHT: ");
     Serial.println(data.value);
     colorRight = CHSV(data.value, 255, 255);
     activeColor = CHSV(data.value, 255, 255);
-
-    int paletteIndex = map(data.value, 0, 255, 0, 8);
-    gCurrentPalette = *(ActivePaletteList[paletteIndex]);
 
   } else if (data.action == ACTION_SPEED) {
     Serial.print("ACTION_SPEED: ");
@@ -168,12 +160,6 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
     Serial.print("ACTION_STROBE_OFF");
     strobeOn = false;
 
-  // AUTO ACTIONS
-  } else if (data.action == ACTION_SET_PALETTE) {
-    Serial.print("ACTION_SET_PALETTE: ");
-    Serial.println(data.value);
-
-    gTargetPalette = *(ActivePaletteList[data.value]);
   }
 }
 
@@ -187,9 +173,6 @@ void loop() {
     } else if (activeViz == VIZ_SPIN) {
       vizSpin(mapf(speed, 1, 10, 1, 20)); // TODO looks choppy at faster speeds
     } else if (activeViz == VIZ_TWINKLE) {
-      EVERY_N_MILLISECONDS(10) {
-        nblendPaletteTowardPalette(gCurrentPalette, gTargetPalette, 12);
-      }
       vizTwinkle(mapf(speed, 1, 10, 4, 9));
     } else {
       setAllColor(CRGB(0, 0, 0));
