@@ -65,7 +65,7 @@ CRGB getOuterWheelColor(int pixel) {
   return getWheelColor(pixelAnglesOuter[pixel]);
 }
 
-void setAll() {
+void setAllColorMode() {
   for(int strand = 0; strand < NUM_STRANDS; strand++) {
     for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
       if (colorMode == COLOR_MODE_WHEEL) {
@@ -100,6 +100,20 @@ void setAll() {
     } else { // black
       dotsOuter[pixel] = CRGB(0, 0, 0);
     }
+  }
+}
+
+void setAllColor(CRGB color) {
+  for(int strand = 0; strand < NUM_STRANDS; strand++) {
+    for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
+      leds[strand][pixel] = color;
+    }
+  }
+  for(int pixel = 0; pixel < LEDS_INNER; pixel++) {
+    dotsInner[pixel] = color;
+  }
+  for(int pixel = 0; pixel < LEDS_OUTER; pixel++) {
+    dotsOuter[pixel] = color;
   }
 }
 

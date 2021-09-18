@@ -181,9 +181,7 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
 void loop() {
   EVERY_N_MILLISECONDS(20) {
     // Background pattern
-    if (activeViz == VIZ_DEFAULT) {
-      setAll(); // set all to black
-    } else if (activeViz == VIZ_EXPLODE) {
+    if (activeViz == VIZ_EXPLODE) {
       float explodeSpeed = mapf(speed, 1, 10, 0.2, 2.0);
       vizExplode(explodeSpeed);
     } else if (activeViz == VIZ_SPIN) {
@@ -193,11 +191,13 @@ void loop() {
         nblendPaletteTowardPalette(gCurrentPalette, gTargetPalette, 12);
       }
       vizTwinkle(mapf(speed, 1, 10, 4, 9));
+    } else {
+      setAllColor(CRGB(0, 0, 0));
     }
 
     // Strobe
     if (strobeOn) {
-      setAll();
+      setAllColorMode();
     }
 
     // Brightness

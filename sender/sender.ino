@@ -103,6 +103,8 @@ void setup() {
   pinMode(SLIDER_3, OUTPUT);
   pinMode(SLIDER_4, OUTPUT);
   pinMode(A0, INPUT);
+
+  initSliderValues();
 }
 
 void send(msg m) {
@@ -132,6 +134,48 @@ void cycleBackground() {
   }
   int newIndex = currentIndex < numBackgrounds - 1 ? currentIndex + 1 : 0;
   background.value = backgrounds[newIndex];
+}
+
+void initSliderValues() {
+  digitalWrite(slider1.pin, HIGH);
+  delay(100);
+  slider1.value = analogRead(0);
+  digitalWrite(slider1.pin, LOW);
+
+  digitalWrite(slider2.pin, HIGH);
+  delay(100);
+  slider2.value = analogRead(0);
+  digitalWrite(slider2.pin, LOW);
+
+  digitalWrite(slider3.pin, HIGH);
+  delay(100);
+  slider3.value = analogRead(0);
+  digitalWrite(slider3.pin, LOW);
+
+  digitalWrite(slider4.pin, HIGH);
+  delay(100);
+  slider4.value = analogRead(0);
+  digitalWrite(slider4.pin, LOW);
+
+  brightness.value = sliderToBrightness(slider1.value);
+  send(brightness);
+  slider1.prev = slider1.value;
+  delay(100);
+
+  colorLeft.value = sliderToHue(slider2.value);
+  send(colorLeft);
+  slider2.prev = slider2.value;
+  delay(100);
+
+  colorRight.value = sliderToHue(slider3.value);
+  send(colorRight);
+  slider3.prev = slider3.value;
+  delay(100);
+
+  speed.value = sliderToSpeed(slider4.value);
+  send(speed);
+  slider4.prev = slider4.value;
+  delay(100);
 }
 
 void loop() {
