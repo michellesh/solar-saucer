@@ -169,7 +169,7 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
 void loop() {
   EVERY_N_MILLISECONDS(20) {
     // Background pattern
-    if (activeViz == VIZ_EXPLODE && explodePixel < STRAND_LENGTH + 5) {
+    if (activeViz == VIZ_EXPLODE && explodePixel < STRAND_LENGTH) {
       vizExplode(speed);
     } else if (activeViz == VIZ_SPIN) {
       vizSpin(speed);
