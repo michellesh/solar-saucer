@@ -1,3 +1,6 @@
+int numColors = 6;  // the number of colors in the color wheel
+int angleStep = 360 / numColors;
+
 CRGB getColorBetween(CRGB color1, CRGB color2, float percent) {
   return CRGB(
     color1.r + percent * (color2.r - color1.r),
@@ -22,7 +25,7 @@ CRGB getOuterGradientColor(int pixel) {
 }
 
 CRGB getWheelColor(int angle) {
-  float percent = (float)(angle % 60) / 60;
+  float percent = (float)(angle % angleStep) / angleStep;
   if (angle >= 0 && angle < 60) {
     return getColorBetween(CRGB::Orange, CRGB::Yellow, percent);
   } else if (angle >= 60 && angle < 120) {

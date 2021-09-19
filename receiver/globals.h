@@ -19,7 +19,7 @@
 #define GPIO_13  13  // D7 data (yellow wire on dots)
 #define GPIO_15  15  // D8 clock (green wire on dots)
 
-#define LEDS_INNER  60
+#define LEDS_INNER  80
 #define LEDS_OUTER  120
 
 CRGB leds_0[STRAND_LENGTH];  // Strip 1
