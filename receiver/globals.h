@@ -75,16 +75,17 @@ int *pixelAngles[] = {
 int pixelAnglesInner[LEDS_INNER];
 int pixelAnglesOuter[LEDS_OUTER];
 
-byte boardNumber;
-bool strobeOn = false;
 uint8_t brightness = BRIGHTNESS;
-uint8_t activeViz = VIZ_DEFAULT;
-uint8_t speed = 5;
-int spinAngle = 240;
+uint8_t activeViz = DEFAULT_VIZ;
+uint8_t speed = DEFAULT_SPEED;
+int colorMode = DEFAULT_COLOR_MODE;
+CRGB activeColor = DEFAULT_COLOR;
+CRGB colorLeft = DEFAULT_COLOR;
+CRGB colorRight = DEFAULT_COLOR;
+
+bool strobeOn = false;
+int spinAngle = 0;
 float explodePixel = 0;
-bool exploded = false;
-int colorMode = COLOR_MODE_SOLID;
-CRGB activeColor = CRGB(255, 255, 255);
-CRGB colorLeft = CRGB::White;
-CRGB colorRight = CRGB::White;
+
+byte boardNumber;
 msg data;

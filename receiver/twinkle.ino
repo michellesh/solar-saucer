@@ -1,6 +1,6 @@
-#define TWINKLE_DENSITY 3  // 0 (NONE lit) to 8 (ALL lit at once)
-
 CRGB backgroundColor = CRGB::Black;
+auto twinkleSpeed = scale(1, 10, 4, 9, true);
+int twinkleDensity = 3;  // 0 (NONE lit) to 8 (ALL lit at once)
 
 //  This function loops over each pixel, calculates the
 //  adjusted 'clock' that this pixel should use, and calls
@@ -45,7 +45,7 @@ CRGB getTwinkleColor(uint16_t &PRNG16, uint32_t clock32, CRGB color) {
   // We now have the adjusted 'clock' for this pixel, now we call
   // the function that computes what color the pixel should be based
   // on the "brightness = f( time )" idea.
-  CRGB c = applyTwinkleBrightness(myclock30, myunique8, speed, color);
+  CRGB c = applyTwinkleBrightness(myclock30, myunique8, twinkleSpeed(speed), color);
 
   uint8_t cbright = c.getAverageLight();
   int16_t deltabright = cbright;
@@ -82,7 +82,7 @@ CRGB applyTwinkleBrightness(uint32_t ms, uint8_t salt, uint8_t speed, CRGB color
   uint8_t slowcycle8 = (slowcycle16 & 0xFF) + (slowcycle16 >> 8);
 
   uint8_t bright = 0;
-  if (((slowcycle8 & 0x0E)/2) < TWINKLE_DENSITY) {
+  if (((slowcycle8 & 0x0E)/2) < twinkleDensity) {
     bright = attackDecayWave8(fastcycle8);
   }
 

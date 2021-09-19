@@ -1,3 +1,4 @@
+auto spinSpeed = scale(1, 10, 1, 20, true);
 int angleThreshold = 10; // how wide the area of LEDs lit up is while spinning
 
 void initPixelAngles() {
@@ -76,7 +77,7 @@ void vizSpin(float speed) {
     setOuterInThreshold(pixel);
   }
 
-  spinAngle += speed;
+  spinAngle += spinSpeed(speed);
   if (spinAngle > 360) {
     spinAngle -= 360;
   }

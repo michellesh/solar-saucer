@@ -148,7 +148,6 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
       spinAngle = 0;
     } else if (activeViz == VIZ_EXPLODE) {
       explodePixel = 0;
-      exploded = false;
     }
 
   } else if (data.action == ACTION_CYCLE_COLOR_MODE) {
@@ -170,14 +169,12 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
 void loop() {
   EVERY_N_MILLISECONDS(20) {
     // Background pattern
-    if (activeViz == VIZ_EXPLODE) {
-      float explodeSpeed = mapf(speed, 1, 10, 0.2, 2.0);
-      vizExplode(explodeSpeed);
+    if (activeViz == VIZ_EXPLODE && explodePixel < STRAND_LENGTH + 5) {
+      vizExplode(speed);
     } else if (activeViz == VIZ_SPIN) {
-      float spinSpeed = mapf(speed, 1, 10, 1, 20);
-      vizSpin(spinSpeed);
+      vizSpin(speed);
     } else if (activeViz == VIZ_TWINKLE) {
-      vizTwinkle(mapf(speed, 1, 10, 4, 9));
+      vizTwinkle(speed);
     } else {
       setAllColor(CRGB(0, 0, 0));
     }

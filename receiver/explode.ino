@@ -1,3 +1,6 @@
+auto explodeSpeed = scale(1, 10, 0.5, 2.0, true);
+bool exploded = false;
+
 float distance(float x1, float y1, float x2, float y2) {
   return sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));
 }
@@ -50,5 +53,5 @@ void vizExplode(float speed) {
     }
   }
 
-  explodePixel = explodePixel >= 75 ? 0 : explodePixel + speed;
+  explodePixel += explodeSpeed(speed);
 }

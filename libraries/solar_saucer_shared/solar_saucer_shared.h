@@ -24,6 +24,12 @@
 #define COLOR_MODE_GRADIENT  1
 #define COLOR_MODE_WHEEL     2
 
+// Defaults
+#define DEFAULT_SPEED       5
+#define DEFAULT_COLOR       CRGB(255, 255, 255)
+#define DEFAULT_VIZ         0
+#define DEFAULT_COLOR_MODE  COLOR_MODE_SOLID
+
 typedef struct msg {
   uint8_t action;
   int value;
