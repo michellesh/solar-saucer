@@ -22,7 +22,7 @@ void setup() {
   }
 
   esp_now_set_self_role(ESP_NOW_ROLE_SLAVE);
-  esp_now_register_recv_cb(OnDataRecv);
+  esp_now_register_recv_cb(onDataRecv);
   esp_now_add_peer(ss_senderAddress, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
 
   boardNumber = WiFi.macAddress() == ss_macAddress1   ? 1
@@ -109,60 +109,77 @@ void setup() {
   send(m);
 }
 
+void printActionInfo(msg data, uint8_t len) {
+  switch (data.action) {
+    case ACTION_SET_BRIGHTNESS:
+      Serial.print("ACTION_SET_BRIGHTNESS: ");
+      Serial.println(data.value);
+      break;
+    case ACTION_SET_COLOR_LEFT:
+      Serial.print("ACTION_SET_COLOR_LEFT: ");
+      Serial.println(data.value);
+      break;
+    case ACTION_SET_COLOR_RIGHT:
+      Serial.print("ACTION_SET_COLOR_RIGHT: ");
+      Serial.println(data.value);
+      break;
+    case ACTION_SPEED:
+      Serial.print("ACTION_SPEED: ");
+      Serial.println(data.value);
+      break;
+    case ACTION_SET_BACKGROUND:
+      Serial.print("ACTION_SET_BACKGROUND: ");
+      Serial.println(data.value);
+      break;
+    case ACTION_CYCLE_COLOR_MODE:
+      Serial.print("ACTION_CYCLE_COLOR_MODE: ");
+      Serial.println(data.value);
+      break;
+    case ACTION_STROBE_ON:
+      Serial.println("ACTION_STROBE_ON");
+      break;
+    case ACTION_STROBE_OFF:
+      Serial.println("ACTION_STROBE_OFF");
+      break;
+    default:
+      Serial.print("Bytes received: ");
+      Serial.println(len);
+      break;
+  }
+}
+
 // Callback function that will be executed when data is received
-void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
+void onDataRecv(uint8_t *mac, uint8_t *incomingData, uint8_t len) {
   memcpy(&data, incomingData, sizeof(data));
-  Serial.print("Bytes received: ");
-  Serial.println(len);
-  Serial.println(data.action);
+
+  printActionInfo(data, len);
 
   // SLIDER ACTIONS
   if (data.action == ACTION_SET_BRIGHTNESS) {
-    Serial.print("ACTION_SET_BRIGHTNESS: ");
-    Serial.println(data.value);
     brightness = (uint8_t)data.value;
-
   } else if (data.action == ACTION_SET_COLOR_LEFT) {
-    Serial.print("ACTION_SET_COLOR_LEFT: ");
-    Serial.println(data.value);
     colorLeft = CHSV(data.value, data.value2, 255);
     activeColor = CHSV(data.value, data.value2, 255);
-
   } else if (data.action == ACTION_SET_COLOR_RIGHT) {
-    Serial.print("ACTION_SET_COLOR_RIGHT: ");
-    Serial.println(data.value);
     colorRight = CHSV(data.value, data.value2, 255);
     activeColor = CHSV(data.value, data.value2, 255);
-
   } else if (data.action == ACTION_SPEED) {
-    Serial.print("ACTION_SPEED: ");
-    Serial.println(data.value);
     speed = data.value;
 
   // BUTTON ACTIONS
   } else if (data.action == ACTION_SET_BACKGROUND) {
-    Serial.print("ACTION_SET_BACKGROUND: ");
-    Serial.println(data.value);
     activeViz = data.value;
     if (activeViz == VIZ_SPIN) {
       spinAngle = 0;
     } else if (activeViz == VIZ_EXPLODE) {
       explodePixel = 0;
     }
-
   } else if (data.action == ACTION_CYCLE_COLOR_MODE) {
-    Serial.print("ACTION_CYCLE_COLOR_MODE: ");
-    Serial.println(data.value);
     colorMode = data.value;
-
   } else if (data.action == ACTION_STROBE_ON) {
-    Serial.print("ACTION_STROBE_ON");
     strobeOn = true;
-
   } else if (data.action == ACTION_STROBE_OFF) {
-    Serial.print("ACTION_STROBE_OFF");
     strobeOn = false;
-
   }
 }
 
