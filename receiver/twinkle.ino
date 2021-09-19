@@ -1,5 +1,5 @@
 CRGB backgroundColor = CRGB::Black;
-auto twinkleSpeed = scale(1, 10, 4, 9, true);
+auto twinkleSpeed = scale(1, 10, 3, 8, true);
 int twinkleDensity = 3;  // 0 (NONE lit) to 8 (ALL lit at once)
 
 //  This function loops over each pixel, calculates the
