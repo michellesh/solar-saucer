@@ -18,11 +18,13 @@
 
 struct Button {
   int pin;
+  char description[20];
   bool pressed;
 };
 
 struct Slider {
   int pin;
+  char description[20];
   int value;
   int prev;
 };
@@ -56,22 +58,18 @@ msg cycleColorMode = {ACTION_CYCLE_COLOR_MODE};
 msg strobeOff = {ACTION_STROBE_OFF};
 msg strobeOn = {ACTION_STROBE_ON};
 
-Button redButton = {RED_BUTTON, false};
-Button blueButton = {BLUE_BUTTON, false};
-Button yellowButton = {YELLOW_BUTTON, false};
-Button greenButton = {GREEN_BUTTON, false};
-Button whiteButton = {WHITE_BUTTON, false};
+Button redButton = {RED_BUTTON, "CYCLE COLOR MODE", false};
+Button blueButton = {BLUE_BUTTON, "EXPLODE", false};
+Button yellowButton = {YELLOW_BUTTON, "TWINKLE", false};
+Button greenButton = {GREEN_BUTTON, "SPIN", false};
+Button whiteButton = {WHITE_BUTTON, "STROBE", false};
 
-Slider slider1 = {SLIDER_1};
-Slider slider2 = {SLIDER_2};
-Slider slider3 = {SLIDER_3};
-Slider slider4 = {SLIDER_4};
+Slider slider1 = {SLIDER_1, "BRIGHTNESS"};
+Slider slider2 = {SLIDER_2, "COLOR LEFT"};
+Slider slider3 = {SLIDER_3, "COLOR RIGHT"};
+Slider slider4 = {SLIDER_4, "SPEED"};
 
 Timer backgroundTimer = {backgroundCycleTime, 0};
-
-auto sliderToBrightness = scale(1000, 50, 0, 255, true);
-auto sliderToHue = scale(900, 50, 255, 0, true);
-auto sliderToSpeed = scale(1000, 0, 1, 10, true);
 
 void setup() {
   Serial.begin(115200);
@@ -113,19 +111,6 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   }
 }
 
-bool isButtonPressed(Button button) {
-  return digitalRead(button.pin) == 0;
-}
-
-bool sliderValueChanged(Slider slider) {
-  int BUFFER = 20;
-  return slider.value < (slider.prev - BUFFER) || slider.value > (slider.prev + BUFFER);
-}
-
-void setBackground(int viz) {
-  background.value = background.value == viz ? VIZ_DEFAULT : viz;
-}
-
 void cycleBackground() {
   int numBackgrounds = sizeof(backgrounds) / sizeof(backgrounds[0]);
   int currentIndex = 0;
@@ -136,59 +121,6 @@ void cycleBackground() {
   }
   int newIndex = currentIndex < numBackgrounds - 1 ? currentIndex + 1 : 0;
   background.value = backgrounds[newIndex];
-}
-
-
-void setColorMsg(Slider &slider, msg &color) {
-  if (slider.value < 100) { // Set to white
-    color.value = 0;
-    color.value2 = 0;
-  } else {
-    color.value = sliderToHue(slider.value);
-    color.value2 = 255;
-  }
-}
-
-void sendSliderValues() {
-  digitalWrite(slider1.pin, HIGH);
-  delay(100);
-  slider1.value = analogRead(0);
-  digitalWrite(slider1.pin, LOW);
-
-  digitalWrite(slider2.pin, HIGH);
-  delay(100);
-  slider2.value = analogRead(0);
-  digitalWrite(slider2.pin, LOW);
-
-  digitalWrite(slider3.pin, HIGH);
-  delay(100);
-  slider3.value = analogRead(0);
-  digitalWrite(slider3.pin, LOW);
-
-  digitalWrite(slider4.pin, HIGH);
-  delay(100);
-  slider4.value = analogRead(0);
-  digitalWrite(slider4.pin, LOW);
-
-  brightness.value = sliderToBrightness(slider1.value);
-  send(brightness);
-  slider1.prev = slider1.value;
-  delay(100);
-
-  setColorMsg(slider2, colorLeft);
-  send(colorLeft);
-  slider2.prev = slider2.value;
-  delay(100);
-
-  setColorMsg(slider3, colorRight);
-  send(colorRight);
-  slider3.prev = slider3.value;
-  delay(100);
-
-  speed.value = sliderToSpeed(slider4.value);
-  send(speed);
-  slider4.prev = slider4.value;
-  delay(100);
 }
 
 void loop() {
@@ -203,124 +135,27 @@ void loop() {
     if (sliderIndex == -1) {
       digitalWrite(slider1.pin, HIGH);
     } else if (sliderIndex == 0) {
-      slider1.value = analogRead(0);
-      digitalWrite(slider1.pin, LOW);
-      digitalWrite(slider2.pin, HIGH);
+      readSliderSetNext(slider1, slider2);
     } else if (sliderIndex == 1) {
-      slider2.value = analogRead(0);
-      digitalWrite(slider2.pin, LOW);
-      digitalWrite(slider3.pin, HIGH);
+      readSliderSetNext(slider2, slider3);
     } else if (sliderIndex == 2) {
-      slider3.value = analogRead(0);
-      digitalWrite(slider3.pin, LOW);
-      digitalWrite(slider4.pin, HIGH);
+      readSliderSetNext(slider3, slider4);
     } else if (sliderIndex == 3) {
-      slider4.value = analogRead(0);
-      digitalWrite(slider4.pin, LOW);
-      digitalWrite(slider1.pin, HIGH);
+      readSliderSetNext(slider4, slider1);
     }
     sliderIndex = sliderIndex == 3 ? 0 : sliderIndex + 1;
   }
 
-  if (sliderValueChanged(slider1)) {
-    brightness.value = sliderToBrightness(slider1.value);
-    Serial.print("BRIGHTNESS changed: ");
-    Serial.println(brightness.value);
-    send(brightness);
-    slider1.prev = slider1.value;
-  }
-
-  if (sliderValueChanged(slider2)) {
-    setColorMsg(slider2, colorLeft);
-    Serial.print("COLOR LEFT changed: ");
-    Serial.println(colorLeft.value);
-    send(colorLeft);
-    slider2.prev = slider2.value;
-  }
-
-  if (sliderValueChanged(slider3)) {
-    setColorMsg(slider3, colorRight);
-    Serial.print("COLOR RIGHT changed: ");
-    Serial.println(colorRight.value);
-    send(colorRight);
-    slider3.prev = slider3.value;
-  }
-
-  if (sliderValueChanged(slider4)) {
-    speed.value = sliderToSpeed(slider4.value);
-    Serial.print("SPEED changed: ");
-    Serial.println(speed.value);
-    send(speed);
-    slider4.prev = slider4.value;
-  }
+  checkSliderChanged(slider1);
+  checkSliderChanged(slider2);
+  checkSliderChanged(slider3);
+  checkSliderChanged(slider4);
 
   EVERY_N_MILLISECONDS(5) {
-    if (isButtonPressed(whiteButton)) {
-      if (!whiteButton.pressed) {
-        Serial.println("White button pressed: STROBE ON");
-        whiteButton.pressed = true;
-        send(strobeOn);
-      }
-    } else if (whiteButton.pressed) {
-      Serial.println("White button UN-pressed: STROBE OFF");
-      whiteButton.pressed = false;
-      send(strobeOff);
-    }
-
-    if (isButtonPressed(yellowButton)) {
-      if (!yellowButton.pressed) {
-        Serial.println("Yellow button: TWINKLE");
-        yellowButton.pressed = true;
-
-        setBackground(VIZ_TWINKLE);
-        send(background);
-        backgroundTimer.reset();
-      }
-    } else if (yellowButton.pressed) {
-      yellowButton.pressed = false;
-    }
-
-    if (isButtonPressed(blueButton)) {
-      if (!blueButton.pressed) {
-        Serial.println("Blue button: EXPLODE");
-        blueButton.pressed = true;
-
-        setBackground(VIZ_EXPLODE);
-        send(background);
-        backgroundTimer.reset();
-      }
-    } else {
-      blueButton.pressed = false;
-    }
-
-    if (isButtonPressed(greenButton)) {
-      if (!greenButton.pressed) {
-        Serial.println("Green button: SPIN");
-        greenButton.pressed = true;
-
-        setBackground(VIZ_SPIN);
-        send(background);
-        backgroundTimer.reset();
-      }
-    } else {
-      greenButton.pressed = false;
-    }
-
-    if (isButtonPressed(redButton)) {
-      if (!redButton.pressed) {
-        Serial.println("Red button: CYCLE COLOR MODE");
-        redButton.pressed = true;
-
-        colorMode = colorMode == COLOR_MODE_SOLID
-          ? COLOR_MODE_GRADIENT
-          : colorMode == COLOR_MODE_GRADIENT
-          ? COLOR_MODE_WHEEL
-          : COLOR_MODE_SOLID;
-        cycleColorMode.value = colorMode;
-        send(cycleColorMode);
-      }
-    } else {
-      redButton.pressed = false;
-    }
+    checkButtonPressed(whiteButton);
+    checkButtonPressed(yellowButton);
+    checkButtonPressed(blueButton);
+    checkButtonPressed(greenButton);
+    checkButtonPressed(redButton);
   }
 }
