@@ -1,3 +1,5 @@
+int angleThreshold = 10; // how wide the area of LEDs lit up is while spinning
+
 void initPixelAngles() {
   for (int strand = 0; strand < NUM_STRANDS; strand++) {
     for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
@@ -24,6 +26,37 @@ int getPixelAngle(int x, int y) {
   return d < 0 ? 360 + d : d;
 }
 
+uint8_t angleDiffToBrightness(int diff) {
+  return map(diff, 0, angleThreshold, 255, 0);
+}
+
+void setStrandInThreshold(int strand, int pixel) {
+  int diff = abs(spinAngle - pixelAngles[strand][pixel]);
+  if (diff < angleThreshold) {
+    leds[strand][pixel] = getStrandModeColor(strand, pixel).nscale8(
+      angleDiffToBrightness(diff)
+    );
+  }
+}
+
+void setInnerInThreshold(int pixel) {
+  int diff = abs(spinAngle - pixelAnglesInner[pixel]);
+  if (diff < angleThreshold) {
+    dotsInner[pixel] = getInnerModeColor(pixel).nscale8(
+      angleDiffToBrightness(diff)
+    );
+  }
+}
+
+void setOuterInThreshold(int pixel) {
+  int diff = abs(spinAngle - pixelAnglesOuter[pixel]);
+  if (diff < angleThreshold) {
+    dotsOuter[pixel] = getOuterModeColor(pixel).nscale8(
+      angleDiffToBrightness(diff)
+    );
+  }
+}
+
 void vizSpin(float speed) {
   fadeToBlackBy(dotsInner, LEDS_INNER, 20);
   fadeToBlackBy(dotsOuter, LEDS_OUTER, 20);
@@ -33,21 +66,18 @@ void vizSpin(float speed) {
 
   for (int strand = 0; strand < NUM_STRANDS; strand++) {
     for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
-      if (abs(spinAngle - pixelAngles[strand][pixel]) < 5) {
-        leds[strand][pixel] = getStrandModeColor(strand, pixel);
-      }
+      setStrandInThreshold(strand, pixel);
     }
   }
   for(int pixel = 0; pixel < LEDS_INNER; pixel++) {
-    if (abs(spinAngle - pixelAnglesInner[pixel]) < 5) {
-      dotsInner[pixel] = getInnerModeColor(pixel);
-    }
+    setInnerInThreshold(pixel);
   }
   for(int pixel = 0; pixel < LEDS_OUTER; pixel++) {
-    if (abs(spinAngle - pixelAnglesOuter[pixel]) < 5) {
-      dotsOuter[pixel] = getOuterModeColor(pixel);
-    }
+    setOuterInThreshold(pixel);
   }
 
-  spinAngle = spinAngle < 360 ? spinAngle + speed : 0;
+  spinAngle += speed;
+  if (spinAngle > 360) {
+    spinAngle -= 360;
+  }
 }

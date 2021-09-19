@@ -167,7 +167,6 @@ void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   }
 }
 
-
 void loop() {
   EVERY_N_MILLISECONDS(20) {
     // Background pattern
@@ -175,7 +174,8 @@ void loop() {
       float explodeSpeed = mapf(speed, 1, 10, 0.2, 2.0);
       vizExplode(explodeSpeed);
     } else if (activeViz == VIZ_SPIN) {
-      vizSpin(mapf(speed, 1, 10, 1, 20)); // TODO looks choppy at faster speeds
+      float spinSpeed = mapf(speed, 1, 10, 1, 20);
+      vizSpin(spinSpeed);
     } else if (activeViz == VIZ_TWINKLE) {
       vizTwinkle(mapf(speed, 1, 10, 4, 9));
     } else {
