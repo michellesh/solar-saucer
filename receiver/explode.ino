@@ -1,3 +1,4 @@
+int pixelWidth = 2;
 auto explodeSpeed = scale(1, 10, 0.5, 2.0, true);
 bool exploded = false;
 
@@ -31,8 +32,8 @@ void vizExplode(float speed) {
   }
 
   for (int strand = 0; strand < NUM_STRANDS; strand++) {
-    if (explodePixel < STRAND_LENGTH) {
-      int pixel = (int)explodePixel;
+    int width = min(STRAND_LENGTH, (int)explodePixel + pixelWidth);
+    for (int pixel = (int)explodePixel; pixel < width; pixel++) {
       leds[strand][pixel] = getStrandModeColor(strand, pixel);
     }
   }
