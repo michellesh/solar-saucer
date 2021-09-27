@@ -43,7 +43,7 @@ struct Timer {
 int backgrounds[] = {VIZ_TWINKLE, VIZ_EXPLODE, VIZ_SPIN};
 int colorMode = DEFAULT_COLOR_MODE;
 int sliderIndex = -1;
-unsigned long backgroundCycleTime = 1000 * 60 * 4; // 4 minutes
+unsigned long backgroundCycleTime = 1000 * 60 * 15;  // 15 minutes
 unsigned long explodeFrequency[] = {2000, 2000, 1750, 1500, 1250, 1000,
                                     900,  800,  700,  600, 500};
 
