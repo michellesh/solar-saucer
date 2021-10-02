@@ -85,7 +85,8 @@ CRGB colorRight = DEFAULT_COLOR;
 
 bool strobeOn = false;
 int spinAngle = 0;
-float explodePixel = 0;
+int explodeLength = 20;
+float explodePixel = -explodeLength;
 
 byte boardNumber;
 msg data;

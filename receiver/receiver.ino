@@ -172,7 +172,7 @@ void onDataRecv(uint8_t *mac, uint8_t *incomingData, uint8_t len) {
     if (activeViz == VIZ_SPIN) {
       spinAngle = 0;
     } else if (activeViz == VIZ_EXPLODE) {
-      explodePixel = 0;
+      explodePixel = -explodeLength;
     }
   } else if (data.action == ACTION_CYCLE_COLOR_MODE) {
     colorMode = data.value;
@@ -186,7 +186,7 @@ void onDataRecv(uint8_t *mac, uint8_t *incomingData, uint8_t len) {
 void loop() {
   EVERY_N_MILLISECONDS(20) {
     // Background pattern
-    if (activeViz == VIZ_EXPLODE && explodePixel < STRAND_LENGTH) {
+    if (activeViz == VIZ_EXPLODE && explodePixel < STRAND_LENGTH + explodeLength) {
       vizExplode(speed);
     } else if (activeViz == VIZ_SPIN) {
       vizSpin(speed);
