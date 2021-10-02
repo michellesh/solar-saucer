@@ -171,8 +171,6 @@ void onDataRecv(uint8_t *mac, uint8_t *incomingData, uint8_t len) {
     activeViz = data.value;
     if (activeViz == VIZ_SPIN) {
       spinAngle = 0;
-    } else if (activeViz == VIZ_EXPLODE) {
-      explodePixel = -explodeLength;
     }
   } else if (data.action == ACTION_CYCLE_COLOR_MODE) {
     colorMode = data.value;
