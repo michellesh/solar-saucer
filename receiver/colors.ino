@@ -89,12 +89,7 @@ CRGB getOuterModeColor(int pixel) {
   }
 }
 
-void setAllColorMode() {
-  for(int strand = 0; strand < NUM_STRANDS; strand++) {
-    for(int pixel = 0; pixel < STRAND_LENGTH; pixel++) {
-      leds[strand][pixel] = getStrandModeColor(strand, pixel);
-    }
-  }
+void setRingsColorMode() {
   for(int pixel = 0; pixel < LEDS_INNER; pixel++) {
     dotsInner[pixel] = getInnerModeColor(pixel);
   }
