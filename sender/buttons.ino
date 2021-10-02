@@ -63,5 +63,5 @@ void printButtonText(Button &button) {
 }
 
 void setBackground(int viz) {
-  background.value = background.value == viz ? VIZ_DEFAULT : viz;
+  background.value = viz;
 }
