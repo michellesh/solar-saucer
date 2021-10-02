@@ -44,13 +44,6 @@ int backgrounds[] = {VIZ_TWINKLE, VIZ_EXPLODE, VIZ_SPIN};
 int colorMode = DEFAULT_COLOR_MODE;
 int sliderIndex = -1;
 unsigned long backgroundCycleTime = 1000 * 60 * 15;  // 15 minutes
-//unsigned long explodeFrequency[] = {2000, 2000, 1750, 1500, 1250, 1000,
-//                                    900,  800,  700,  600, 500};
-
-// TODO finish fixing explode frequencies
-//unsigned long explodeFrequency[] = {2500, 2500, 2000, 1500, 1250, 1000,
-//                                    900,  800,  700,  600, 500};
-auto explodeFrequency = scale(1, 10, 2500, 300, true);
 
 // Slider Actions
 msg brightness = {ACTION_SET_BRIGHTNESS};
@@ -77,7 +70,6 @@ Slider slider3 = {SLIDER_3, "COLOR RIGHT"};
 Slider slider4 = {SLIDER_4, "SPEED"};
 
 Timer backgroundTimer = {backgroundCycleTime, 0};
-Timer explodeTimer = {explodeFrequency(DEFAULT_SPEED), 0};
 
 void setup() {
   Serial.begin(115200);
@@ -138,12 +130,6 @@ void loop() {
     send(background);
     backgroundTimer.reset();
   }
-
-  // Sender must initiate each explosion for all boards to stay in sync
-  //if (background.value == VIZ_EXPLODE && explodeTimer.complete()) {
-  //  send(background);
-  //  explodeTimer.reset();
-  //}
 
   EVERY_N_MILLISECONDS(10) {
     if (sliderIndex == -1) {

@@ -30,7 +30,6 @@ void onSliderChanged(Slider &slider) {
       break;
     case SLIDER_4:
       speed.value = sliderToSpeed(slider4.value);
-      explodeTimer.totalCycleTime = explodeFrequency(speed.value);
       send(speed);
       break;
     default: break;
