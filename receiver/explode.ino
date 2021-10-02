@@ -31,6 +31,10 @@ void vizExplode(float speed) {
   int endPixel = startPixel + explodeLength;
 
   for (int strand = 0; strand < NUM_STRANDS; strand++) {
+    for (int pixel = 0; pixel < startPixel; pixel++) {
+      int p = getOffsetPixel(pixel);
+      leds[strand][p] = CRGB::Black;
+    }
     for (int pixel = startPixel; pixel < middlePixel; pixel++) {
       int b = explodeFadeIn(pixel - startPixel);
       int p = getOffsetPixel(pixel);
@@ -40,6 +44,10 @@ void vizExplode(float speed) {
       int b = explodeFadeOut(pixel - middlePixel);
       int p = getOffsetPixel(pixel);
       leds[strand][p] = getStrandModeColor(strand, p).nscale8(b);
+    }
+    for (int pixel = endPixel; pixel < STRAND_LENGTH; pixel++) {
+      int p = getOffsetPixel(pixel);
+      leds[strand][p] = CRGB::Black;
     }
   }
 
