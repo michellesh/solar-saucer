@@ -140,10 +140,10 @@ void loop() {
   }
 
   // Sender must initiate each explosion for all boards to stay in sync
-  if (background.value == VIZ_EXPLODE && explodeTimer.complete()) {
-    send(background);
-    explodeTimer.reset();
-  }
+  //if (background.value == VIZ_EXPLODE && explodeTimer.complete()) {
+  //  send(background);
+  //  explodeTimer.reset();
+  //}
 
   EVERY_N_MILLISECONDS(10) {
     if (sliderIndex == -1) {
