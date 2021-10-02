@@ -33,7 +33,6 @@
 typedef struct msg {
   uint8_t action;
   int value;
-  int value2;
 } msg;
 
 void send(msg m) {

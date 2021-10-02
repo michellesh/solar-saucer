@@ -158,11 +158,13 @@ void onDataRecv(uint8_t *mac, uint8_t *incomingData, uint8_t len) {
   if (data.action == ACTION_SET_BRIGHTNESS) {
     brightness = (uint8_t)data.value;
   } else if (data.action == ACTION_SET_COLOR_LEFT) {
-    colorLeft = CHSV(data.value, data.value2, 255);
-    activeColor = CHSV(data.value, data.value2, 255);
+    CRGB color = sliderValueToColor(data.value);
+    colorLeft = color;
+    activeColor = color;
   } else if (data.action == ACTION_SET_COLOR_RIGHT) {
-    colorRight = CHSV(data.value, data.value2, 255);
-    activeColor = CHSV(data.value, data.value2, 255);
+    CRGB color = sliderValueToColor(data.value);
+    colorRight = color;
+    activeColor = color;
   } else if (data.action == ACTION_SPEED) {
     speed = data.value;
 

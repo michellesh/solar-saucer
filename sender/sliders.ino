@@ -1,5 +1,5 @@
 auto sliderToBrightness = scale(1000, 50, 0, 255, true);
-auto sliderToHue = scale(900, 50, 255, 0, true);
+auto sliderToHue = scale(900, 0, 255, 0, true);
 auto sliderToSpeed = scale(1000, 0, 1, 10, true);
 
 bool sliderValueChanged(Slider slider) {
@@ -21,11 +21,11 @@ void onSliderChanged(Slider &slider) {
       send(brightness);
       break;
     case SLIDER_2:
-      setColor(slider2, colorLeft);
+      colorLeft.value = sliderToHue(slider2.value);
       send(colorLeft);
       break;
     case SLIDER_3:
-      setColor(slider3, colorRight);
+      colorRight.value = sliderToHue(slider3.value);
       send(colorRight);
       break;
     case SLIDER_4:
@@ -46,16 +46,6 @@ void printSliderText(Slider &slider) {
   Serial.print(slider.description);
   Serial.print(" changed: ");
   Serial.println(value);
-}
-
-void setColor(Slider &slider, msg &color) {
-  if (slider.value < 100) { // Set to white
-    color.value = 0;
-    color.value2 = 0;
-  } else {
-    color.value = sliderToHue(slider.value);
-    color.value2 = 255;
-  }
 }
 
 void readSliderSetNext(Slider &sliderOff, Slider &sliderOn) {
