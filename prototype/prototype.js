@@ -11,10 +11,10 @@ const INNER_RADIUS = INNER_CIRCUMFERENCE / Math.PI / 2; // C=2πr
 // The outer ring is 65" wider than the inside ring
 const OUTER_RADIUS = INNER_RADIUS + SOLAR_PANEL_LENGTH;
 
-const NUM_DOTS_OUTER = 120;
-const NUM_DOTS_INNER = 80;
+const NUM_DOTS_OUTER = 111;
+const NUM_DOTS_INNER = 74;
 const NUM_STRANDS = 18;
-const STRAND_LENGTH = 50;
+const STRAND_LENGTH = 47;
 
 const XY = (x, y) => Object.freeze({ x, y });
 

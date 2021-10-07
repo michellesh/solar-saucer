@@ -2,7 +2,12 @@
 #define COLOR_ORDER     GRB
 #define LED_TYPE        WS2813
 #define NUM_STRANDS     18
-#define STRAND_LENGTH   50
+#define STRAND_LENGTH   47
+
+// When we installed the strands, the first pixel of strand 18
+// didn't line up with the first pixel of strand 1, so start
+// strand 18 at an offset
+#define STRAND_18_OFFSET  14
 
 #define DATA_PIN_0  0
 #define DATA_PIN_1  1
@@ -19,8 +24,8 @@
 #define GPIO_13  13  // D7 data (yellow wire on dots)
 #define GPIO_15  15  // D8 clock (green wire on dots)
 
-#define LEDS_INNER  80
-#define LEDS_OUTER  120
+#define LEDS_INNER  74
+#define LEDS_OUTER  111
 
 CRGB leds_0[STRAND_LENGTH];  // Strip 1
 CRGB leds_1[STRAND_LENGTH];

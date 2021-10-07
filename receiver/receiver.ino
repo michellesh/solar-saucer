@@ -47,7 +47,7 @@ void setup() {
     FastLED.addLeds<LED_TYPE, DATA_PIN_5, COLOR_ORDER>(leds[16], STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
-    FastLED.addLeds<LED_TYPE, DATA_PIN_6, COLOR_ORDER>(leds[17], STRAND_LENGTH)
+    FastLED.addLeds<LED_TYPE, DATA_PIN_6, COLOR_ORDER>(leds[17], STRAND_18_OFFSET, STRAND_LENGTH)
       .setCorrection(TypicalLEDStrip)
       .setDither(BRIGHTNESS < 255);
 
