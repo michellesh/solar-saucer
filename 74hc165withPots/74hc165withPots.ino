@@ -1,3 +1,6 @@
+#define FASTLED_ESP8266_NODEMCU_PIN_ORDER
+#include <FastLED.h>
+
 #define D0  16
 #define D1  5
 #define D2  4
@@ -8,7 +11,6 @@
 #define D7  13
 #define D8  15
 
-#define SR_D0  7
 #define SR_D1  6
 #define SR_D2  5
 #define SR_D3  4
@@ -17,23 +19,28 @@
 #define SR_D6  1
 #define SR_D7  0
 
+#define NUM_LEDS  3
+#define LEDS_PIN  4
+
 int SR_LOAD = D8;
 int SR_CLOCK_ENABLE = D5;
 int SR_DATA = D6;
 int SR_CLOCK = D7;
 
-int KNOB_1 = D0;
-int KNOB_2 = D1;
-int KNOB_3 = D2;
-int KNOB_4 = D3;
+int KNOB_COLOR_1 = D0;
+int KNOB_BRIGHTNESS = D1;
+int KNOB_COLOR_2 = D2;
+int KNOB_SPEED = D3;
 
-int BUTTON_1 = SR_D1;
-int BUTTON_2 = SR_D2;
-int BUTTON_3 = SR_D3;
-int BUTTON_4 = SR_D4;
-int BUTTON_5 = SR_D5;
-int BUTTON_6 = SR_D6;
-int BUTTON_7 = SR_D7;
+int BUTTON_FLASH = SR_D1;
+int BUTTON_EXPLODE = SR_D2;
+int BUTTON_TWINKLE = SR_D3;
+int BUTTON_COLOR_MODE_GRADIENT = SR_D4;
+int BUTTON_COLOR_MODE_WHEEL = SR_D5;
+int BUTTON_SPIN = SR_D6;
+int BUTTON_COLOR_MODE_SOLID = SR_D7;
+
+CRGB leds[NUM_LEDS];
 
 void setup() {
   Serial.begin(115200);
@@ -45,11 +52,14 @@ void setup() {
   pinMode(SR_DATA, INPUT);
 
   // Potentiometers
-  pinMode(KNOB_1, OUTPUT);
-  pinMode(KNOB_2, OUTPUT);
-  pinMode(KNOB_3, OUTPUT);
-  pinMode(KNOB_4, OUTPUT);
+  pinMode(KNOB_COLOR_1, OUTPUT);
+  pinMode(KNOB_BRIGHTNESS, OUTPUT);
+  pinMode(KNOB_COLOR_2, OUTPUT);
+  pinMode(KNOB_SPEED, OUTPUT);
   pinMode(A0, INPUT);
+
+  // LEDs
+  FastLED.addLeds<NEOPIXEL, LEDS_PIN>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
 }
 
 void loop() {
@@ -67,29 +77,31 @@ void loop() {
 
   // Print button values
   Serial.print("Button 1: ");
-  Serial.println(getButtonValue(incoming, BUTTON_1));
+  Serial.println(getButtonValue(incoming, BUTTON_FLASH));
   Serial.print("Button 2: ");
-  Serial.println(getButtonValue(incoming, BUTTON_2));
+  Serial.println(getButtonValue(incoming, BUTTON_EXPLODE));
   Serial.print("Button 3: ");
-  Serial.println(getButtonValue(incoming, BUTTON_3));
+  Serial.println(getButtonValue(incoming, BUTTON_TWINKLE));
   Serial.print("Button 4: ");
-  Serial.println(getButtonValue(incoming, BUTTON_4));
+  Serial.println(getButtonValue(incoming, BUTTON_COLOR_MODE_GRADIENT));
   Serial.print("Button 5: ");
-  Serial.println(getButtonValue(incoming, BUTTON_5));
+  Serial.println(getButtonValue(incoming, BUTTON_COLOR_MODE_WHEEL));
   Serial.print("Button 6: ");
-  Serial.println(getButtonValue(incoming, BUTTON_6));
+  Serial.println(getButtonValue(incoming, BUTTON_SPIN));
   Serial.print("Button 7: ");
-  Serial.println(getButtonValue(incoming, BUTTON_7));
+  Serial.println(getButtonValue(incoming, BUTTON_COLOR_MODE_SOLID));
 
   // Print knob values
   Serial.print("Knob 1: ");
-  Serial.println(getKnobValue(KNOB_1));
+  Serial.println(getKnobValue(KNOB_COLOR_1));
   Serial.print("Knob 2: ");
-  Serial.println(getKnobValue(KNOB_2));
+  Serial.println(getKnobValue(KNOB_BRIGHTNESS));
   Serial.print("Knob 3: ");
-  Serial.println(getKnobValue(KNOB_3));
+  Serial.println(getKnobValue(KNOB_COLOR_2));
   Serial.print("Knob 4: ");
-  Serial.println(getKnobValue(KNOB_4));
+  Serial.println(getKnobValue(KNOB_SPEED));
+
+  showLEDs();
 
   Serial.println();
   delay(500);
@@ -113,4 +125,50 @@ void printByte(byte incoming) {
     Serial.print(b);
   }
   Serial.println();
+}
+
+void showLEDs() {
+  pride();
+  FastLED.show();
+}
+
+// This function is taken from the FastLED example Pride2015
+void pride() {
+  static uint16_t sPseudotime = 0;
+  static uint16_t sLastMillis = 0;
+  static uint16_t sHue16 = 0;
+
+  uint8_t sat8 = beatsin88(87, 220, 250);
+  uint8_t brightdepth = beatsin88(341, 96, 224);
+  uint16_t brightnessthetainc16 = beatsin88(203, (25 * 256), (40 * 256));
+  uint8_t msmultiplier = beatsin88(147, 23, 60);
+
+  uint16_t hue16 = sHue16;
+  uint16_t hueinc16 = beatsin88(113, 1, 3000);
+
+  uint16_t ms = millis();
+  uint16_t deltams = ms - sLastMillis;
+  sLastMillis  = ms;
+  sPseudotime += deltams * msmultiplier;
+  sHue16 += deltams * beatsin88(400, 5, 9);
+  uint16_t brightnesstheta16 = sPseudotime;
+
+  for(uint16_t i = 0 ; i < NUM_LEDS; i++) {
+    hue16 += hueinc16;
+    uint8_t hue8 = hue16 / 256;
+
+    brightnesstheta16  += brightnessthetainc16;
+    uint16_t b16 = sin16(brightnesstheta16) + 32768;
+
+    uint16_t bri16 = (uint32_t)((uint32_t)b16 * (uint32_t)b16) / 65536;
+    uint8_t bri8 = (uint32_t)(((uint32_t)bri16) * brightdepth) / 65536;
+    bri8 += (255 - brightdepth);
+
+    CRGB newcolor = CHSV(hue8, sat8, bri8);
+
+    uint16_t pixelnumber = i;
+    pixelnumber = (NUM_LEDS - 1) - pixelnumber;
+
+    nblend(leds[pixelnumber], newcolor, 64);
+  }
 }
