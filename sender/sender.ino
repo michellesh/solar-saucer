@@ -106,6 +106,8 @@ Knob knob4 = {KNOB_4, "SPEED"};
 
 Timer backgroundTimer = {backgroundCycleTime, 0};
 
+CRGB leds[NUM_LEDS];
+
 void setup() {
   Serial.begin(115200);
 
@@ -123,6 +125,9 @@ void setup() {
   esp_now_add_peer(ss_broadcastAddress1, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
   esp_now_add_peer(ss_broadcastAddress2, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
   esp_now_add_peer(ss_broadcastAddress3, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
+
+  // LEDs
+  FastLED.addLeds<NEOPIXEL, LEDS_PIN>(leds, NUM_LEDS).setCorrection(TypicalLEDStrip);
 
   // Shift Register
   pinMode(SR_LOAD, OUTPUT);
@@ -198,4 +203,6 @@ void loop() {
     checkButtonPressed(shiftRegisterState, buttonColorWheel);
     checkButtonPressed(shiftRegisterState, buttonColorSolid);
   }
+
+  showLEDs();
 }
