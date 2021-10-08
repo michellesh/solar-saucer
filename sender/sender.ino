@@ -31,11 +31,11 @@
 #define SR_DATA          D6
 #define SR_CLOCK         D7
 
-// ESP8266 pins used for sliders
-#define SLIDER_1         D1
-#define SLIDER_2         D0
-#define SLIDER_3         D2
-#define SLIDER_4         D3
+// ESP8266 pins used for knobs
+#define KNOB_1  D1
+#define KNOB_2  D0
+#define KNOB_3  D2
+#define KNOB_4  D3
 
 // Shift register pins used for buttons
 #define BUTTON_FLASH           SR_D1
@@ -56,7 +56,7 @@ struct Button {
   bool pressed;
 };
 
-struct Slider {
+struct Knob {
   int pin;
   char description[20];
   int value;
@@ -75,10 +75,10 @@ struct Timer {
 };
 
 int backgrounds[] = {VIZ_TWINKLE, VIZ_EXPLODE, VIZ_SPIN};
-int sliderIndex = -1;
+int knobIndex = -1;
 unsigned long backgroundCycleTime = 1000 * 60 * 15;  // 15 minutes
 
-// Slider Actions
+// Knob Actions
 msg brightness = {ACTION_SET_BRIGHTNESS};
 msg colorLeft = {ACTION_SET_COLOR_LEFT};
 msg colorRight = {ACTION_SET_COLOR_RIGHT};
@@ -99,10 +99,10 @@ Button buttonColorGradient = {BUTTON_COLOR_GRADIENT, "COLOR GRADIENT", false};
 Button buttonColorWheel = {BUTTON_COLOR_WHEEL, "COLOR WHEEL", false};
 Button buttonColorSolid = {BUTTON_COLOR_SOLID, "COLOR SOLID", false};
 
-Slider slider1 = {SLIDER_1, "BRIGHTNESS"};
-Slider slider2 = {SLIDER_2, "COLOR LEFT"};
-Slider slider3 = {SLIDER_3, "COLOR RIGHT"};
-Slider slider4 = {SLIDER_4, "SPEED"};
+Knob knob1 = {KNOB_1, "BRIGHTNESS"};
+Knob knob2 = {KNOB_2, "COLOR LEFT"};
+Knob knob3 = {KNOB_3, "COLOR RIGHT"};
+Knob knob4 = {KNOB_4, "SPEED"};
 
 Timer backgroundTimer = {backgroundCycleTime, 0};
 
@@ -131,20 +131,20 @@ void setup() {
   pinMode(SR_DATA, INPUT);
 
   // Knobs
-  pinMode(SLIDER_1, OUTPUT);
-  pinMode(SLIDER_2, OUTPUT);
-  pinMode(SLIDER_3, OUTPUT);
-  pinMode(SLIDER_4, OUTPUT);
+  pinMode(KNOB_1, OUTPUT);
+  pinMode(KNOB_2, OUTPUT);
+  pinMode(KNOB_3, OUTPUT);
+  pinMode(KNOB_4, OUTPUT);
   pinMode(A0, INPUT);
 
-  sendSliderValues();
+  sendKnobValues();
 }
 
 void OnDataRecv(uint8_t * mac, uint8_t *incomingData, uint8_t len) {
   memcpy(&data, incomingData, sizeof(data));
 
-  if (data.action == REQUEST_SLIDER_VALUES) {
-    sendSliderValues();
+  if (data.action == REQUEST_KNOB_VALUES) {
+    sendKnobValues();
   }
 }
 
@@ -169,24 +169,24 @@ void loop() {
   }
 
   EVERY_N_MILLISECONDS(10) {
-    if (sliderIndex == -1) {
-      digitalWrite(slider1.pin, HIGH);
-    } else if (sliderIndex == 0) {
-      readSliderSetNext(slider1, slider2);
-    } else if (sliderIndex == 1) {
-      readSliderSetNext(slider2, slider3);
-    } else if (sliderIndex == 2) {
-      readSliderSetNext(slider3, slider4);
-    } else if (sliderIndex == 3) {
-      readSliderSetNext(slider4, slider1);
+    if (knobIndex == -1) {
+      digitalWrite(knob1.pin, HIGH);
+    } else if (knobIndex == 0) {
+      readKnobSetNext(knob1, knob2);
+    } else if (knobIndex == 1) {
+      readKnobSetNext(knob2, knob3);
+    } else if (knobIndex == 2) {
+      readKnobSetNext(knob3, knob4);
+    } else if (knobIndex == 3) {
+      readKnobSetNext(knob4, knob1);
     }
-    sliderIndex = sliderIndex == 3 ? 0 : sliderIndex + 1;
+    knobIndex = knobIndex == 3 ? 0 : knobIndex + 1;
   }
 
-  checkSliderChanged(slider1);
-  checkSliderChanged(slider2);
-  checkSliderChanged(slider3);
-  checkSliderChanged(slider4);
+  checkKnobChanged(knob1);
+  checkKnobChanged(knob2);
+  checkKnobChanged(knob3);
+  checkKnobChanged(knob4);
 
   byte shiftRegisterState = getShiftRegisterState();
   EVERY_N_MILLISECONDS(5) {

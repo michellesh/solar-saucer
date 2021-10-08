@@ -1,4 +1,4 @@
-// Slider Actions
+// Knob Actions
 #define ACTION_SET_BRIGHTNESS    0
 #define ACTION_SET_COLOR_LEFT    1
 #define ACTION_SET_COLOR_RIGHT   2
@@ -11,7 +11,7 @@
 #define ACTION_STROBE_ON         7
 
 // Receiver Actions
-#define REQUEST_SLIDER_VALUES    8
+#define REQUEST_KNOB_VALUES    8
 
 // Visualizations
 #define VIZ_DEFAULT  0

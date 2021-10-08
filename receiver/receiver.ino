@@ -105,7 +105,7 @@ void setup() {
 
   initPixelAngles();
 
-  msg m = {REQUEST_SLIDER_VALUES};
+  msg m = {REQUEST_KNOB_VALUES};
   send(m);
 }
 
@@ -154,15 +154,15 @@ void onDataRecv(uint8_t *mac, uint8_t *incomingData, uint8_t len) {
 
   printActionInfo(data, len);
 
-  // SLIDER ACTIONS
+  // KNOB ACTIONS
   if (data.action == ACTION_SET_BRIGHTNESS) {
     brightness = (uint8_t)data.value;
   } else if (data.action == ACTION_SET_COLOR_LEFT) {
-    CRGB color = sliderValueToColor(data.value);
+    CRGB color = knobValueToColor(data.value);
     colorLeft = color;
     activeColor = color;
   } else if (data.action == ACTION_SET_COLOR_RIGHT) {
-    CRGB color = sliderValueToColor(data.value);
+    CRGB color = knobValueToColor(data.value);
     colorRight = color;
     activeColor = color;
   } else if (data.action == ACTION_SPEED) {

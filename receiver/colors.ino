@@ -126,14 +126,14 @@ void setAllBrightness(uint8_t b) {
   }
 }
 
-CRGB sliderValueToColor(int sliderValue) {
+CRGB knobValueToColor(int knobValue) {
   float ywCutoff = 3;  // Percent Yellow/White Cutoff Threshold
-  float sliderPercent = mapf((float)sliderValue, 0, 255, 0, 100);
-  if (sliderPercent < ywCutoff) {
-    float percent = mapf((float)sliderPercent, 0, ywCutoff, 0, 100);
+  float knobPercent = mapf((float)knobValue, 0, 255, 0, 100);
+  if (knobPercent < ywCutoff) {
+    float percent = mapf((float)knobPercent, 0, ywCutoff, 0, 100);
     return getColorBetween(CRGB::White, CRGB::Yellow, percent / 100);
   } else {
-    float hue = mapf(sliderPercent, ywCutoff, 100, (float)HUE_YELLOW, 255);
+    float hue = mapf(knobPercent, ywCutoff, 100, (float)HUE_YELLOW, 255);
     return CHSV(hue, 255, 255);
   }
 }
