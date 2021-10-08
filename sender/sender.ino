@@ -5,16 +5,50 @@
 #include "solar_saucer_shared.h"
 #include "secrets.h"
 
-#define SLIDER_1       15  // D8
-#define SLIDER_2       5   // D1
-#define SLIDER_3       16  // D0
-#define SLIDER_4       0   // D3
+// ESP8266 pin number -> GPIO mapping
+#define D0  16
+#define D1  5
+#define D2  4
+#define D3  0
+#define D4  2
+#define D5  14
+#define D6  12
+#define D7  13
+#define D8  15
 
-#define RED_BUTTON     2   // D4
-#define BLUE_BUTTON    14  // D5
-#define YELLOW_BUTTON  12  // D6
-#define GREEN_BUTTON   13  // D7
-#define WHITE_BUTTON   4   // D2
+// Shift register pin number -> bit index mapping
+#define SR_D1  6
+#define SR_D2  5
+#define SR_D3  4
+#define SR_D4  3
+#define SR_D5  2
+#define SR_D6  1
+#define SR_D7  0
+
+// ESP8266 pins used for shift register
+#define SR_LOAD          D8
+#define SR_CLOCK_ENABLE  D5
+#define SR_DATA          D6
+#define SR_CLOCK         D7
+
+// ESP8266 pins used for sliders
+#define SLIDER_1         D1
+#define SLIDER_2         D0
+#define SLIDER_3         D2
+#define SLIDER_4         D3
+
+// Shift register pins used for buttons
+#define BUTTON_FLASH           SR_D1
+#define BUTTON_EXPLODE         SR_D2
+#define BUTTON_TWINKLE         SR_D3
+#define BUTTON_COLOR_GRADIENT  SR_D4
+#define BUTTON_COLOR_WHEEL     SR_D5
+#define BUTTON_SPIN            SR_D6
+#define BUTTON_COLOR_SOLID     SR_D7
+
+// LEDs
+#define LEDS_PIN  4  // D4
+#define NUM_LEDS  3
 
 struct Button {
   int pin;
@@ -41,7 +75,6 @@ struct Timer {
 };
 
 int backgrounds[] = {VIZ_TWINKLE, VIZ_EXPLODE, VIZ_SPIN};
-int colorMode = DEFAULT_COLOR_MODE;
 int sliderIndex = -1;
 unsigned long backgroundCycleTime = 1000 * 60 * 15;  // 15 minutes
 
@@ -54,15 +87,17 @@ msg data;
 
 // Button Actions
 msg background = {ACTION_SET_BACKGROUND, DEFAULT_VIZ};
-msg cycleColorMode = {ACTION_CYCLE_COLOR_MODE};
+msg colorMode = {ACTION_CYCLE_COLOR_MODE};
 msg strobeOff = {ACTION_STROBE_OFF};
 msg strobeOn = {ACTION_STROBE_ON};
 
-Button redButton = {RED_BUTTON, "CYCLE COLOR MODE", false};
-Button blueButton = {BLUE_BUTTON, "EXPLODE", false};
-Button yellowButton = {YELLOW_BUTTON, "TWINKLE", false};
-Button greenButton = {GREEN_BUTTON, "SPIN", false};
-Button whiteButton = {WHITE_BUTTON, "STROBE", false};
+Button buttonExplode = {BUTTON_EXPLODE, "EXPLODE", false};
+Button buttonTwinkle = {BUTTON_TWINKLE, "TWINKLE", false};
+Button buttonSpin = {BUTTON_SPIN, "SPIN", false};
+Button buttonFlash = {BUTTON_FLASH, "FLASH", false};
+Button buttonColorGradient = {BUTTON_COLOR_GRADIENT, "COLOR GRADIENT", false};
+Button buttonColorWheel = {BUTTON_COLOR_WHEEL, "COLOR WHEEL", false};
+Button buttonColorSolid = {BUTTON_COLOR_SOLID, "COLOR SOLID", false};
 
 Slider slider1 = {SLIDER_1, "BRIGHTNESS"};
 Slider slider2 = {SLIDER_2, "COLOR LEFT"};
@@ -89,11 +124,13 @@ void setup() {
   esp_now_add_peer(ss_broadcastAddress2, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
   esp_now_add_peer(ss_broadcastAddress3, ESP_NOW_ROLE_SLAVE, 1, NULL, 0);
 
-  pinMode(RED_BUTTON, INPUT_PULLUP);
-  pinMode(BLUE_BUTTON, INPUT_PULLUP);
-  pinMode(YELLOW_BUTTON, INPUT_PULLUP);
-  pinMode(GREEN_BUTTON, INPUT_PULLUP);
-  pinMode(WHITE_BUTTON, INPUT_PULLUP);
+  // Shift Register
+  pinMode(SR_LOAD, OUTPUT);
+  pinMode(SR_CLOCK_ENABLE, OUTPUT);
+  pinMode(SR_CLOCK, OUTPUT);
+  pinMode(SR_DATA, INPUT);
+
+  // Knobs
   pinMode(SLIDER_1, OUTPUT);
   pinMode(SLIDER_2, OUTPUT);
   pinMode(SLIDER_3, OUTPUT);
@@ -151,11 +188,14 @@ void loop() {
   checkSliderChanged(slider3);
   checkSliderChanged(slider4);
 
+  byte shiftRegisterState = getShiftRegisterState();
   EVERY_N_MILLISECONDS(5) {
-    checkButtonPressed(whiteButton);
-    checkButtonPressed(yellowButton);
-    checkButtonPressed(blueButton);
-    checkButtonPressed(greenButton);
-    checkButtonPressed(redButton);
+    checkButtonPressed(shiftRegisterState, buttonFlash);
+    checkButtonPressed(shiftRegisterState, buttonTwinkle);
+    checkButtonPressed(shiftRegisterState, buttonExplode);
+    checkButtonPressed(shiftRegisterState, buttonSpin);
+    checkButtonPressed(shiftRegisterState, buttonColorGradient);
+    checkButtonPressed(shiftRegisterState, buttonColorWheel);
+    checkButtonPressed(shiftRegisterState, buttonColorSolid);
   }
 }

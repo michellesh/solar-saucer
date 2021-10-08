@@ -1,6 +1,6 @@
-auto sliderToBrightness = scale(1000, 50, 0, 255, true);
-auto sliderToHue = scale(900, 0, 255, 0, true);
-auto sliderToSpeed = scale(1000, 0, 1, 10, true);
+auto sliderToBrightness = scale(1000, 0, 0, 255, true);
+auto sliderToHue = scale(1000, 0, 255, 0, true);
+auto sliderToSpeed = scale(1000, 0, 1, 11, true);
 
 bool sliderValueChanged(Slider slider) {
   int BUFFER = 20;
